@@ -1,0 +1,68 @@
+server:
+  port: 8077
+  servlet:
+    context-path: /
+
+security:
+  jwt:
+    secret: my-secret-key # 请替换为更强的密钥
+
+spring:
+  application:
+    name: im-auth
+  profiles:
+    active: dev
+  security:
+    oauth2:
+      authorization-server:
+        issuer: http://intelligentmfg.qtech.com
+  jpa:
+    database-platform: org.hibernate.dialect.Oracle12cDialect
+    hibernate:
+      ddl-auto: none  # 让Hibernate自动更新数据库结构 update
+    show-sql: true
+  jackson:
+    time-zone: Asia/Shanghai
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 50MB
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
+    cache: false
+  # redis 配置
+  data:
+    redis:
+      cluster:
+        max-redirects: 3
+        nodes:
+          - 10.170.6.24:6379
+          - 10.170.6.25:6379
+          - 10.170.6.26:6379
+          - 10.170.6.141:6379
+          - 10.170.6.142:6379
+          - 10.170.1.68:6379
+      lettuce:
+        cluster:
+          refresh:
+            adaptive: true
+            period: 2000
+      timeout: 5000
+      password: im@2024
+      database: 0
+
+jwt:
+  secret: yourSecretKey  # 用于签名和验证 JWT
+  expiration: 3600       # Token 过期时间（单位：秒）
+  refreshExpiration: 86400  # Refresh Token 过期时间（单位：秒）
+
+logging:
+  config: classpath:logback-spring.xml
+  level: # 日志级别配置
+    root: info
+    org.hibernate.SQL: debug
+    org.hibernate.type.descriptor.sql.BasicBinder: trace
+

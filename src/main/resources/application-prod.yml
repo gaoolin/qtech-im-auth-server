@@ -1,0 +1,6 @@
+spring:
+  datasource:
+    url: jdbc:oracle:thin:@//10.170.6.144:1521/qtechIm
+    username: imBiz
+    password: M5F5JkfnQ
+    driver-class-name: oracle.jdbc.OracleDriver

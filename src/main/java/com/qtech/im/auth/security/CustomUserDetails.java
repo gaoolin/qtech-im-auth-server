@@ -1,8 +1,15 @@
-package com.qtech.im.auth.dto;
+package com.qtech.im.auth.security;
 
+import com.qtech.im.auth.model.Role;
+import com.qtech.im.auth.model.User;
+import com.qtech.im.auth.utils.UserStatus;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
 import java.util.Collection;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 /**
  * author :  gaozhilin
  * email  :  gaoolin@gmail.com
@@ -12,19 +19,42 @@ import java.util.Collection;
  * 封装用户信息：存储用户名、密码、权限、账户状态（是否锁定、是否启用等）。
  * 配合 UserDetailsService 使用：Spring Security 通过 UserDetailsService 加载用户信息，返回 UserDetails 供认证和授权使用。
  * 自定义额外属性：可以在 CustomUserDetails 中添加额外的字段，例如用户ID、邮箱、角色列表等。
+ *
+ * 设计优化点
+ * ✅ 角色权限自动继承
+ *
+ * 通过 flatMap(role -> role.getPermissions().stream()) 获取 所有角色的权限，使 Spring Security 可以识别权限。
+ * ✅ 支持 RBAC 和 PBAC
+ *
+ * RBAC（基于角色访问控制）：用户通过角色获取权限。
+ * PBAC（基于权限访问控制）：未来可以直接为用户分配权限（未在当前实现）。
  */
-
 public class CustomUserDetails implements UserDetails {
-    private String username;
-    private String password;
-    private boolean enabled;
-    private Collection<? extends GrantedAuthority> authorities;
+    private final Long id; // 保留 ID，方便以后扩展
+    private final String username;
+    private final String password;
+    private final boolean enabled;
+    private final Set<GrantedAuthority> authorities;
 
-    public CustomUserDetails(String username, String password, boolean enabled, Collection<? extends GrantedAuthority> authorities) {
+    public CustomUserDetails(Long id, String username, String password, boolean enabled, Set<Role> roles) {
+        this.id = id;
         this.username = username;
         this.password = password;
         this.enabled = enabled;
-        this.authorities = authorities;
+        this.authorities = roles.stream()
+                .flatMap(role -> role.getPermissions().stream()) // 角色权限合并
+                .collect(Collectors.toSet());
+    }
+
+    // 直接接受 User 作为参数，便于通用化
+    public static CustomUserDetails fromUser(User user) {
+        return new CustomUserDetails(
+                user.getId(),
+                user.getUsername(),
+                user.getPasswordHash(),
+                user.getStatus() == UserStatus.ACTIVE,
+                user.getRoles()
+        );
     }
 
     @Override

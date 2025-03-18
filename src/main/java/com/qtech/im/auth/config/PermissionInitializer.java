@@ -1,10 +1,29 @@
-package com.qtech.im.auth.config;/**
+package com.qtech.im.auth.config;
+
+import com.qtech.im.auth.service.api.IPermissionService;
+import jakarta.annotation.PostConstruct;
+
+/**
  * author :  gaozhilin
  * email  :  gaoolin@gmail.com
  * date   :  2025/03/17 14:16:48
- * desc   :  TODO
+ * desc   :  权限初始化器
+ * ✅ 系统启动时自动创建权限，防止数据库为空。
  */
- 
 
+// @Component
 public class PermissionInitializer {
+
+    private final IPermissionService IPermissionService;
+
+    public PermissionInitializer(IPermissionService IPermissionService) {
+        this.IPermissionService = IPermissionService;
+    }
+
+    @PostConstruct
+    public void init() {
+        IPermissionService.getOrCreatePermission("READ_USER");
+        IPermissionService.getOrCreatePermission("WRITE_USER");
+        IPermissionService.getOrCreatePermission("DELETE_USER");
+    }
 }

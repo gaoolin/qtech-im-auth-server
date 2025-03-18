@@ -1,5 +1,6 @@
-package com.qtech.im.auth.entity;
+package com.qtech.im.auth.model;
 
+import com.qtech.im.auth.utils.UserStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -23,23 +24,36 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, length = 50)
+    private String employeeId;
+
+    @Column(length = 50)
     private String username;
 
-    @Column(nullable = false)
-    private String password; // 存储哈希加密后的密码
+    @Column(length = 255)
+    private String passwordHash;
 
-    @Column(unique = true, nullable = false)
+    @Column(length = 100)
     private String email;
 
-    @Column(nullable = false)
-    private boolean enabled = true;
+    @Column(length = 50)
+    private String department;
+
+    @Column(length = 50)
+    private String section;
+
+    @Column(length = 10)
+    private String gender;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private UserStatus status;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-        name = "IM_AUTH_USER_ROLE",
-        joinColumns = @JoinColumn(name = "USER_ID"),
-        inverseJoinColumns = @JoinColumn(name = "ROLE_ID")
+            name = "IM_AUTH_USER_ROLE",
+            joinColumns = @JoinColumn(name = "USER_ID"),
+            inverseJoinColumns = @JoinColumn(name = "ROLE_ID")
     )
     private Set<Role> roles = new HashSet<>();
 }

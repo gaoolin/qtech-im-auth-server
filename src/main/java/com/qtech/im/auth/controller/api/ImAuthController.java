@@ -1,7 +1,7 @@
-package com.qtech.im.auth.controller;
+package com.qtech.im.auth.controller.api;
 
-import com.qtech.im.auth.service.ApiKeyService;
-import com.qtech.im.auth.service.ApiKeyValidationService;
+import com.qtech.im.auth.service.api.ApiKeyService;
+import com.qtech.im.auth.service.api.ApiKeyValidationService;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

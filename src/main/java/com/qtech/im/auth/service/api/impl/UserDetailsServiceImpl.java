@@ -1,4 +1,4 @@
-package com.qtech.im.auth.service.impl;
+package com.qtech.im.auth.service.api.impl;
 
 import com.qtech.im.auth.model.User;
 import com.qtech.im.auth.repository.UserRepository;

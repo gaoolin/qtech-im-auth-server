@@ -1,4 +1,4 @@
-package com.qtech.im.auth.controller;
+package com.qtech.im.auth.controller.api;
 
 /**
  * author :  gaozhilin

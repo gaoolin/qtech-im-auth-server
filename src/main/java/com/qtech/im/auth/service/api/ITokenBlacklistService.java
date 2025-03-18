@@ -1,4 +1,4 @@
-package com.qtech.im.auth.service;
+package com.qtech.im.auth.service.api;
 
 /**
  * author :  gaozhilin

@@ -17,15 +17,12 @@ import java.util.Date;
  */
 
 @Component
-public class JwtUtils {
+public class JwtTokenUtils {
     @Value("${jwt.secret}")
     private String secretKey;
 
     @Value("${jwt.expiration}")
     private int expirationTime;
-
-    @Value("${jwt.header}")
-    private String header;
 
     @Value("${jwt.refreshExpiration}")
     private int refreshExpirationTime;

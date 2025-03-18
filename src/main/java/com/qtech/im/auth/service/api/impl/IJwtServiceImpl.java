@@ -1,6 +1,6 @@
-package com.qtech.im.auth.service.impl;
+package com.qtech.im.auth.service.api.impl;
 
-import com.qtech.im.auth.service.IJwtService;
+import com.qtech.im.auth.service.api.IJwtService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 

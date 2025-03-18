@@ -1,8 +1,8 @@
-package com.qtech.im.auth.service.impl;
+package com.qtech.im.auth.service.api.impl;
 
 import com.qtech.im.auth.model.Permission;
 import com.qtech.im.auth.repository.PermissionRepository;
-import com.qtech.im.auth.service.IPermissionService;
+import com.qtech.im.auth.service.api.IPermissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

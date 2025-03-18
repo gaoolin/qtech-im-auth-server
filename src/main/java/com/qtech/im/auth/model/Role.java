@@ -1,4 +1,4 @@
-package com.qtech.im.auth.entity;
+package com.qtech.im.auth.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -31,13 +31,15 @@ import java.util.Set;
 @Entity
 @Table(name = "IM_AUTH_ROLE")
 public class Role implements GrantedAuthority {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
-    @Column(unique = true, nullable = false)
-    private String name; // 角色名称，如 ROLE_ADMIN, ROLE_USER
+    @Column(length = 50, unique = true)
+    private String roleName; // 角色名称，如 ROLE_ADMIN, ROLE_USER
+
+    @Column(length = 255)
+    private String description;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -49,7 +51,7 @@ public class Role implements GrantedAuthority {
 
     @Override
     public String getAuthority() {
-        return name; // Spring Security 需要角色名称作为权限标识
+        return roleName; // Spring Security 需要角色名称作为权限标识
     }
 }
 

@@ -1,10 +1,14 @@
-package com.qtech.im.auth.repository;/**
+package com.qtech.im.auth.repository;
+
+import org.springframework.stereotype.Repository;
+
+/**
  * author :  gaozhilin
  * email  :  gaoolin@gmail.com
  * date   :  2025/03/13 16:26:22
- * desc   :  TODO
+ * desc   :  角色数据访问
  */
- 
 
-public class RoleRepository {
+@Repository
+public interface RoleRepository {
 }

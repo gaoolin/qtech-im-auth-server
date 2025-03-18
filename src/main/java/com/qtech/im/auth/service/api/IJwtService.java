@@ -1,4 +1,4 @@
-package com.qtech.im.auth.service;
+package com.qtech.im.auth.service.api;
 
 import org.springframework.security.core.userdetails.UserDetails;
 

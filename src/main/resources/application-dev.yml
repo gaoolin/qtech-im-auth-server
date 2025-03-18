@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    driver-class-name: oracle.jdbc.OracleDriver
+    url: jdbc:oracle:thin:@//10.170.6.140:1521/imTest
+    username: IMWEB
+    password: NzmNXWDwxm2
+    hikari:
+      maximum-pool-size: 10
+  jpa:
+    database-platform: org.hibernate.dialect.OracleDialect
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      properties:
+        hibernate:
+          format_sql: true

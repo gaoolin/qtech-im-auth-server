@@ -1,4 +1,4 @@
-package com.qtech.im.auth.entity;
+package com.qtech.im.auth.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -15,18 +15,30 @@ import org.springframework.security.core.GrantedAuthority;
 @Entity
 @Table(name = "IM_AUTH_PERMISSION")
 public class Permission implements GrantedAuthority {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
-    @Column(unique = true, nullable = false)
-    private String name; // 权限名称，如 READ_USER, WRITE_USER
+    @Column(length = 50)
+    private String systemName;
 
+    @Column(length = 50, unique = true)
+    private String applicationName;
+
+    @Column(length = 50)
+    private String resourceName;
+
+    @Column(length = 50)
+    private String permissionName; // 权限名称，如 READ_USER, WRITE_USER
+
+    @Column(length = 20)
+    private String actionType;
+
+    @Column(length = 255)
     private String description;
 
     @Override
     public String getAuthority() {
-        return name; // Spring Security 需要权限标识
+        return permissionName; // Spring Security 需要权限标识
     }
 }

@@ -5,8 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /* 启动类 */
 @SpringBootApplication
-public class QtechImAuthServerApplication {
+public class QtechImAuthServer {
     public static void main(String[] args) {
-        SpringApplication.run(QtechImAuthServerApplication.class, args);
+        SpringApplication.run(QtechImAuthServer.class, args);
     }
 }

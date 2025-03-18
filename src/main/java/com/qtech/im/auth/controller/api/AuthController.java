@@ -1,4 +1,4 @@
-package com.qtech.im.auth.controller;
+package com.qtech.im.auth.controller.api;
 
 import com.qtech.im.auth.dto.AuthResponse;
 import com.qtech.im.auth.dto.LoginRequest;
