@@ -57,7 +57,6 @@ clone 本项目
 > 默认 logs 文件夹，路径可通过 `LOG_PATH` 环境变量指定。
 
 ## ✅ 维护者
-- [Qtech](https://github.com/qtech)  
+- [Qtech](https://github.com/gaoolin/qtech-im-auth-server)  
 - 邮箱: gaoolin@gmail.com  
 - 企业内部钉钉群: 【智能制造认证服务交流群】
-

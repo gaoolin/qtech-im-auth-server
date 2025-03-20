@@ -1,6 +1,10 @@
 package com.qtech.im.auth.repository;
 
+import com.qtech.im.auth.model.Role;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  * author :  gaozhilin
@@ -10,5 +14,13 @@ import org.springframework.stereotype.Repository;
  */
 
 @Repository
-public interface RoleRepository {
+public interface RoleRepository extends JpaRepository<Role, Long> {
+    // 根据角色名称查询角色
+    Role findByRoleName(String roleName);
+
+    // 根据角色名称模糊查询角色
+    List<Role> findByRoleNameContaining(String roleName);
+
+    // 查询所有角色
+    List<Role> findAll();
 }

@@ -13,7 +13,7 @@ import java.util.Optional;
  */
 
 public interface IPermissionService {
-    Optional<Permission> findByName(String permissionName);
+    Optional<Permission> findByPermissionName(String permissionName);
 
     List<Permission> findAll();
 
@@ -25,4 +25,20 @@ public interface IPermissionService {
     Permission getOrCreatePermission(String permissionName);
 
     Permission getOrCreatePermission(String systemName, String applicationName, String permissionName);
+
+    List<String> getPermissionsByEmployeeIdAndSystem(String employeeId, String systemName);
+
+    Permission createPermission(Permission permission);
+
+    Permission updatePermission(Integer id, Permission permissionDetails);
+
+    Permission updatePermission(Long id, Permission permissionDetails);
+
+    void deletePermission(Integer id);
+
+    List<Permission> findAllPermissions();
+
+    List<Permission> findPermissionsBySystem(String systemName);
+
+    List<Permission> findPermissionsByApplication(String applicationName);
 }

@@ -1,5 +1,9 @@
 package com.qtech.im.auth.service.api;
 
+import com.qtech.im.auth.model.Role;
+
+import java.util.List;
+
 /**
  * author :  gaozhilin
  * email  :  gaoolin@gmail.com
@@ -9,4 +13,13 @@ package com.qtech.im.auth.service.api;
 
 
 public interface IRoleService {
+    Role createRole(Role role);
+
+    Role updateRole(Long id, Role roleDetails);
+
+    void deleteRole(Long id);
+
+    List<Role> findAllRoles();
+
+    Role findRoleByRoleName(String roleName);
 }

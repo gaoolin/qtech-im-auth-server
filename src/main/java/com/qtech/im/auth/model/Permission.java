@@ -17,7 +17,7 @@ import org.springframework.security.core.GrantedAuthority;
 public class Permission implements GrantedAuthority {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(length = 50)
     private String systemName;

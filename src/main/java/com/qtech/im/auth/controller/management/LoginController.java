@@ -1,13 +1,15 @@
 package com.qtech.im.auth.controller.management;
 
-import com.qtech.im.auth.dto.LoginRequest;
 import com.qtech.im.auth.utils.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * author :  gaozhilin
@@ -30,21 +32,25 @@ public class LoginController {
     }
 
     @PostMapping("/login")
-    public String doLogin(@RequestBody LoginRequest request) {
-        String username = request.getUsername();
-        String password = request.getPassword();
+    public String doLogin(@RequestParam String username, @RequestParam String password) {
         // 模拟校验，实际应根据数据库或其他认证方式
         if ("admin".equals(username) && "admin123".equals(password)) {
-            String token = jwtTokenProvider.generateToken(username);
-            return "redirect:/home?token=" + token;
+            String token = jwtTokenProvider.getUsernameFromToken(username);
+            return "redirect:/home?token=" + token; // 将 Token 作为 URL 参数传递
         }
-        return "redirect:/login?error=true";
+        return "redirect:/login?error=true"; // 登录失败重定向到登录页
     }
 
     @GetMapping("/home")
     public String homePage(@RequestParam(required = false) String token, Model model) {
         model.addAttribute("token", token);
         return "home";
+    }
+
+    @GetMapping("/dashboard")
+    private String dashboard(Model model) {
+        model.addAttribute("username", "管理员");
+        return "dashboard";
     }
 
     @GetMapping("/test")

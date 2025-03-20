@@ -73,8 +73,14 @@ INSERT INTO im_auth_api_key (user_id, api_key)
 VALUES (1, 'API_KEY_ADMIN_EXAMPLE');
 
 -- 插入 OAuth 客户端
-INSERT INTO im_auth_oauth_client (client_id, client_secret, grant_types, redirect_uris, scopes)
-VALUES ('mfg_dashboard', 'secret1234', 'authorization_code,refresh_token', 'https://mfg.example.com/callback', 'read,write');
+INSERT INTO im_auth_oauth_client (client_id, client_name, system_name, client_secret, grant_types, redirect_uris, scopes, created_at)
+VALUES ('mes_client', 'MES系统客户端', 'MES', 'secret123', 'client_credentials', 'http://localhost:8080/callback', 'read,write', SYSTIMESTAMP);
+
+INSERT INTO im_auth_oauth_client (client_id, client_name, system_name, client_secret, grant_types, redirect_uris, scopes, created_at)
+VALUES ('erp_integration', 'ERP系统客户端', 'ERP', 'secret456', 'client_credentials', 'http://localhost:8081/callback', 'read', SYSTIMESTAMP);
+
+INSERT INTO im_auth_oauth_client (client_id, client_name, system_name, client_secret, grant_types, redirect_uris, scopes, created_at)
+VALUES ('wms_client', 'WMS系统客户端', 'WMS', 'secret789', 'client_credentials', 'http://localhost:8082/callback', 'read,write,delete', SYSTIMESTAMP);
 
 -- 插入测试会话
 INSERT INTO im_auth_session (user_id, session_token, expires_at)

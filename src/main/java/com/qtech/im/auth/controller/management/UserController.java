@@ -1,13 +1,9 @@
 package com.qtech.im.auth.controller.management;
 
-import com.qtech.im.auth.model.User;
 import com.qtech.im.auth.service.api.IUserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-
-import java.util.List;
 
 /**
  * author :  gaozhilin
@@ -19,8 +15,16 @@ import java.util.List;
 @Controller
 public class UserController {
 
+    private final IUserService userService;
+
+    public UserController(IUserService userService) {
+        this.userService = userService;
+    }
+
     @GetMapping("/users")
     public String userList(Model model) {
+        model.addAttribute("users", userService.findAllUsers());
         return "user-list";
     }
 }
+

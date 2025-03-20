@@ -3,10 +3,10 @@ package com.qtech.im.auth.service.api;
 /**
  * author :  gaozhilin
  * email  :  gaoolin@gmail.com
- * date   :  2025/03/13 16:28:39
- * desc   :  认证服务
+ * date   :  2025/03/19 14:44:54
+ * desc   :
  */
 
 
-public interface IAuthService {
+public interface IAuditLogService {
 }

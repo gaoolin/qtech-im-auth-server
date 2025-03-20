@@ -1,0 +1,3 @@
+ALTER TABLE im_auth_oauth_client
+ADD COLUMN issuer VARCHAR(255) NOT NULL,
+ADD COLUMN audience VARCHAR(255) NOT NULL;

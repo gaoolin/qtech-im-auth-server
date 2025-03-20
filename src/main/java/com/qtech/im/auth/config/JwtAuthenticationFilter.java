@@ -19,45 +19,49 @@ import java.io.IOException;
  * email  :  gaoolin@gmail.com
  * date   :  2025/03/13 14:40:46
  * desc   :  JWT 过滤器
- * <p>
- * JWT 过滤器用于拦截 HTTP 请求，检查请求头中是否携带有效的 JWT。如果有效，则将用户信息传递给 Spring Security 的上下文。
- * <p>
- * 解释：
- * getJwtFromRequest：
- * <p>
- * 从请求的 Authorization 头中获取 JWT token。如果 Authorization 头的格式是 Bearer <token>，则提取 token 部分。
- * validateToken：
- * <p>
- * 使用 JwtTokenProvider 来验证 JWT 是否有效。如果 JWT 无效或过期，则不继续认证。
- * UsernamePasswordAuthenticationToken：
- * <p>
- * 使用从 JWT 中获取到的用户名创建一个 UsernamePasswordAuthenticationToken。你可以在这个对象中设置角色和权限，或者通过后续的 GrantedAuthority 来处理。
- * WebAuthenticationDetailsSource：
- * <p>
- * 通过 WebAuthenticationDetailsSource 设置额外的认证信息（如用户的 IP 地址）。你可以根据需求进行修改。
- * SecurityContextHolder：
- * <p>
- * 将认证信息放入 SecurityContext 中。Spring Security 会基于 SecurityContext 判断用户是否已认证。
- * doFilter：
- * <p>
- * 调用 filterChain.doFilter(request, response) 以继续执行过滤链的其余部分（如后续的安全过滤器）。
- * <p>
- * <p>
- * 总结：
- * JwtAuthenticationFilter 会在每次请求时从请求头中提取 JWT，验证其有效性，并将用户信息存放在 SecurityContext 中。
- * JwtTokenProvider 负责处理 JWT 的生成、验证和解析。
- * 如果对 JWT 认证机制还不熟悉，建议逐步了解 JWT 的生成和验证过程，理解如何通过它来确保 API 请求的安全性。
  */
 
+/**
+ * JWT 过滤器
+ * <p>
+ * JWT 过滤器用于拦截 HTTP 请求，检查请求头中是否携带有效的 JWT。如果有效，则将用户信息传递给 Spring Security 的上下文。
+ * </p>
+ * <p>
+ * 主要功能：
+ * 1. 从请求的 Authorization 头中获取 JWT token。
+ * 2. 验证 JWT 是否有效。
+ * 3. 如果有效，提取用户名并创建认证对象。
+ * 4. 将认证信息放入 SecurityContext 中。
+ * </p>
+ * <p>
+ * 关键方法：
+ * - {@link #doFilterInternal(HttpServletRequest, HttpServletResponse, FilterChain)}: 核心过滤逻辑。
+ * - {@link #getJwtFromRequest(HttpServletRequest)}: 从请求头中提取 JWT token。
+ * </p>
+ */
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
 
+    /**
+     * 构造函数，注入 JwtTokenProvider。
+     *
+     * @param jwtTokenProvider JWT 提供者，用于生成、验证和解析 JWT。
+     */
     public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider) {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
+    /**
+     * 核心过滤逻辑，拦截每个 HTTP 请求并处理 JWT 认证。
+     *
+     * @param request     HTTP 请求对象。
+     * @param response    HTTP 响应对象。
+     * @param filterChain 过滤链对象，用于继续执行后续的过滤器。
+     * @throws ServletException 如果发生 Servlet 异常。
+     * @throws IOException      如果发生 IO 异常。
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -65,11 +69,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             // 从请求头中获取 JWT token
             String token = getJwtFromRequest(request);
+            log.debug(">>>>> JWT Token from request: {}", token != null ? token.substring(0, Math.min(token.length(), 10)) + "..." : "null");
 
             // 如果 token 不为空且合法，则进行认证
             if (token != null && jwtTokenProvider.validateToken(token)) {
+                log.debug(">>>>> JWT Token is valid");
+
                 // 获取用户信息
                 String username = jwtTokenProvider.getUsernameFromToken(token);
+                log.debug(">>>>> Username extracted from JWT: {}", username);
 
                 // 创建一个认证对象（包括用户名和权限信息）
                 UsernamePasswordAuthenticationToken authentication =
@@ -80,9 +88,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 // 将认证信息放到 SecurityContext 中
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+                log.debug(">>>>> Authentication set in SecurityContext for user: {}", username);
+            } else {
+                log.debug(">>>>> JWT Token is invalid or null");
             }
         } catch (AuthenticationException e) {
+            log.warn(">>>>> Authentication failed: {}", e.getMessage(), e);
             response.sendRedirect("/login?error=true");
+            return;
+        } catch (Exception e) {
+            log.error(">>>>> Unexpected error occurred: {}", e.getMessage(), e);
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("Internal Server Error");
             return;
         }
 
@@ -92,10 +109,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     // 从请求头获取 token
+    /**
+     * 从请求头中获取 JWT token。
+     *
+     * @param request HTTP 请求对象。
+     * @return JWT token 字符串，如果未找到或格式不正确则返回 null。
+     */
     private String getJwtFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);  // 去掉 "Bearer " 前缀
+            // 检查是否满足最小长度要求
+            if (bearerToken.length() > 7) {
+                return bearerToken.substring(7);  // 去掉 "Bearer " 前缀
+            }
+            log.warn(">>>>> Invalid Authorization header format: {}", bearerToken);
         }
         return null;
     }

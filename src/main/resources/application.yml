@@ -55,7 +55,7 @@ spring:
       database: 0
 
 jwt:
-  secret: yourSecretKey  # 用于签名和验证 JWT
+  secret: Qw3nTf6yHp9kLmO0Rs2vBuXzCeJ5tWa1  # 用于签名和验证 JWT
   expiration: 3600       # Token 过期时间（单位：秒）
   refreshExpiration: 86400  # Refresh Token 过期时间（单位：秒）
 
@@ -63,6 +63,7 @@ logging:
   config: classpath:logback-spring.xml
   level: # 日志级别配置
     root: info
+    com.qtech.im: debug
     org.hibernate.SQL: debug
     org.hibernate.type.descriptor.sql.BasicBinder: trace
 
