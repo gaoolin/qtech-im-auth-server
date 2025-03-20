@@ -24,7 +24,7 @@ public class Session {
     @JoinColumn(name = "USER_ID")
     private User user;
 
-    @Column(length = 255)
+    @Column(name = "SESSION_TOKEN", length = 255)
     private String sessionToken;
 
     private LocalDateTime expiresAt;

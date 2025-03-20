@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
  * desc   :
  */
 
-@RestController
-@RequiredArgsConstructor
-@CrossOrigin(origins = "*", maxAge = 3600)
-@RequestMapping("/auth/users")
+// @RestController
+// @RequiredArgsConstructor
+// @CrossOrigin(origins = "*", maxAge = 3600)
+// @RequestMapping("/auth/users")
 public class PermissionController {
 }

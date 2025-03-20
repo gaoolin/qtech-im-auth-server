@@ -3,18 +3,19 @@ package com.qtech.im.auth.controller.management;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+
 /**
  * author :  gaozhilin
  * email  :  gaoolin@gmail.com
- * date   :  2025/03/18 14:27:55
- * desc   :
+ * date   :  2025/03/18 13:54:40
+ * desc   :  角色管理控制器
  */
 
 @Controller
-public class PermissionController {
+public class RoleManagementController {
 
-    @GetMapping("/permissions")
-    public String permissionList(Model model) {
-        return "permission-list";
+    @GetMapping("/roles")
+    public String roleList(Model model) {
+        return "role-list";
     }
 }

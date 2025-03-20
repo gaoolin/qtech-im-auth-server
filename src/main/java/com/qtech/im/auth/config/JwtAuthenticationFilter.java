@@ -1,6 +1,6 @@
 package com.qtech.im.auth.config;
 
-import com.qtech.im.auth.utils.JwtTokenProvider;
+import com.qtech.im.auth.common.JwtTokenProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

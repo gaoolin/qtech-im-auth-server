@@ -1,6 +1,6 @@
 package com.qtech.im.auth.config;
 
-import com.qtech.im.auth.utils.JwtTokenProvider;
+import com.qtech.im.auth.common.JwtTokenProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

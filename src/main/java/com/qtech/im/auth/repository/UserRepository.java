@@ -2,6 +2,7 @@ package com.qtech.im.auth.repository;
 
 import com.qtech.im.auth.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -32,6 +33,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByEmployeeId(String employeeId);
 
+    @Query("SELECT u FROM User u")
     List<User> findAllUsers();
 
     void deleteUserByEmployeeId(String employeeId);

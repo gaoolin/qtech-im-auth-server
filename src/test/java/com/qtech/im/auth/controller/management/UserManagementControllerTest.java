@@ -20,8 +20,8 @@ import java.util.Collections;
  * desc   :
  */
 
-@WebMvcTest(UserController.class)
-class UserControllerTest {
+@WebMvcTest(UserManagementController.class)
+class UserManagementControllerTest {
 
     @Autowired
     private MockMvc mockMvc;

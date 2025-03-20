@@ -19,19 +19,19 @@ public class Permission implements GrantedAuthority {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 50)
+    @Column(name = "SYSTEM_NAME", length = 50)
     private String systemName;
 
-    @Column(length = 50, unique = true)
+    @Column(name = "APPLICATION_NAME", length = 50, unique = true)
     private String applicationName;
 
-    @Column(length = 50)
+    @Column(name = "RESOURCE_NAME", length = 50)
     private String resourceName;
 
-    @Column(length = 50)
+    @Column(name = "PERMISSION_NAME", length = 50)
     private String permissionName; // 权限名称，如 READ_USER, WRITE_USER
 
-    @Column(length = 20)
+    @Column(name = "ACTION_TYPE", length = 20)
     private String actionType;
 
     @Column(length = 255)

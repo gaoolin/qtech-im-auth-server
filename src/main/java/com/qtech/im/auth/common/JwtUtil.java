@@ -1,4 +1,4 @@
-package com.qtech.im.auth.utils;
+package com.qtech.im.auth.common;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

@@ -2,7 +2,7 @@ package com.qtech.im.auth.controller.api;
 
 import com.qtech.im.auth.dto.AuthResponse;
 import com.qtech.im.auth.dto.LoginRequest;
-import com.qtech.im.auth.utils.JwtUtil;
+import com.qtech.im.auth.common.JwtUtil;
 import org.springframework.security.core.Authentication;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

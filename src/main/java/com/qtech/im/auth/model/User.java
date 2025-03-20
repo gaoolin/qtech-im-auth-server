@@ -12,7 +12,8 @@ import java.util.Set;
  * email  :  gaoolin@gmail.com
  * date   :  2025/03/13 14:27:45
  * desc   :
- * 改进点： ✅ 密码存储应使用加密方式，不能存储明文密码。
+ * 改进点：
+ * ✅ 密码存储应使用加密方式，不能存储明文密码。
  * ✅ 默认值设置为 true，表示账号默认可用。
  */
 
@@ -24,13 +25,13 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, length = 50)
+    @Column(name = "EMPLOYEE_ID", unique = true, length = 50)
     private String employeeId;
 
     @Column(length = 50)
     private String username;
 
-    @Column(length = 255)
+    @Column(name = "PASSWORD_HASH", length = 255)
     private String passwordHash;
 
     @Column(length = 100)

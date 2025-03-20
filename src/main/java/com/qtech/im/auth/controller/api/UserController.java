@@ -5,6 +5,7 @@ import com.qtech.im.auth.model.Permission;
 import com.qtech.im.auth.model.Role;
 import com.qtech.im.auth.service.api.IUserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
@@ -21,7 +22,7 @@ import java.util.Set;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/auth/users")
 public class UserController {
-
+    @Autowired
     private final IUserService userService;
 
     @GetMapping("/{employeeId}/roles")

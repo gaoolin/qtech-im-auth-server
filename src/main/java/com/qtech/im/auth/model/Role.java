@@ -35,7 +35,7 @@ public class Role implements GrantedAuthority {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 50, unique = true)
+    @Column(name = "ROLE_NAME", length = 50, unique = true)
     private String roleName; // 角色名称，如 ROLE_ADMIN, ROLE_USER
 
     @Column(length = 255)

@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.GetMapping;
  */
 
 @Controller
-public class UserController {
+public class UserManagementController {
 
     private final IUserService userService;
 
-    public UserController(IUserService userService) {
+    public UserManagementController(IUserService userService) {
         this.userService = userService;
     }
 

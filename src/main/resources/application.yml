@@ -17,9 +17,12 @@ spring:
       authorization-server:
         issuer: http://intelligentmfg.qtech.com
   jpa:
-    database-platform: org.hibernate.dialect.Oracle12cDialect
+    database-platform: org.hibernate.dialect.Oracle19cDialect
     hibernate:
       ddl-auto: none  # 让Hibernate自动更新数据库结构 update
+      naming:
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyComponentPathImpl
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     show-sql: true
   jackson:
     time-zone: Asia/Shanghai
