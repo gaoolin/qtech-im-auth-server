@@ -1,5 +1,7 @@
 package com.qtech.im.auth.exception.authentication;
 
+import com.qtech.im.auth.common.ResultCode;
+
 /**
  * author :  gaozhilin
  * email  :  gaoolin@gmail.com
@@ -9,10 +11,6 @@ package com.qtech.im.auth.exception.authentication;
 
 public class AccountExpiredException extends AuthenticationException {
     public AccountExpiredException(String message) {
-        super(message);
-    }
-
-    public AccountExpiredException(String message, Throwable cause) {
-        super(message, cause);
+        super(ResultCode.NO_PERMISSION, message);
     }
 }

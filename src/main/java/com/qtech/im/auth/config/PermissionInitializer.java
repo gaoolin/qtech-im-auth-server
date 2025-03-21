@@ -1,6 +1,6 @@
 package com.qtech.im.auth.config;
 
-import com.qtech.im.auth.service.api.IPermissionService;
+import com.qtech.im.auth.service.management.IPermissionService;
 import jakarta.annotation.PostConstruct;
 
 /**

@@ -56,11 +56,14 @@ spring:
       timeout: 5000
       password: im@2024
       database: 0
+  web:
+    resources:
+      static-locations: classpath:/static/
 
 jwt:
   secret: Qw3nTf6yHp9kLmO0Rs2vBuXzCeJ5tWa1  # 用于签名和验证 JWT
   expiration: 3600       # Token 过期时间（单位：秒）
-  refreshExpiration: 86400  # Refresh Token 过期时间（单位：秒）
+  refresh-expiration: 86400  # Refresh Token 过期时间（单位：秒）
 
 logging:
   config: classpath:logback-spring.xml

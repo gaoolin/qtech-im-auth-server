@@ -1,14 +1,15 @@
 package com.qtech.im.auth.common;
 
-import com.qtech.im.auth.exception.authentication.AuthenticationException;
-import com.qtech.im.auth.exception.authentication.CredentialsExpiredException;
 import com.qtech.im.auth.exception.biz.ParamIllegalException;
 import com.qtech.im.auth.model.OAuthClient;
 import com.qtech.im.auth.model.Permission;
 import com.qtech.im.auth.model.Role;
 import com.qtech.im.auth.model.User;
-import com.qtech.im.auth.service.api.*;
+import com.qtech.im.auth.security.CustomUserDetails;
+import com.qtech.im.auth.service.api.IOAuthClientService;
+import com.qtech.im.auth.service.management.IUserService;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -20,9 +21,10 @@ import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
-import java.util.Date;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.qtech.im.auth.utils.SysConstants.*;
 
 /**
  * author :  gaozhilin
@@ -54,27 +56,19 @@ import java.util.Set;
 @Slf4j
 @Component
 public class JwtTokenProvider {
-
-    // 定义常量，避免硬编码
-    private static final String CLAIM_EMPLOYEE_ID = "employee_id";
-    private static final String CLAIM_ROLES = "roles";
-    private static final String CLAIM_PERMISSIONS = "permissions";
-    private static final String CLAIM_SYSTEM = "system";
-    private static final String CLAIM_CLIENT_ID = "client_id";
-
     @Value("${jwt.secret}")
     private String jwtSecret;
+
     @Value("${jwt.expiration}")
-    private long jwtExpiration;
+    private long jwtExpiration; // access_token 有效期
+
+    @Value("${jwt.refresh-expiration}")
+    private long jwtRefreshExpiration; // refresh_token 有效期（建议在 yml 里配置）
+
     private Key jwtSecretKey;
+
     @Autowired
     private IUserService userService;
-    @Autowired
-    private IRoleService roleService;
-    @Autowired
-    private IUserRoleService userRoleService;
-    @Autowired
-    private IPermissionService permissionService;
     @Autowired
     private IOAuthClientService oAuthClientService;
 
@@ -87,44 +81,79 @@ public class JwtTokenProvider {
         this.jwtSecretKey = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
-    // 生成用户 JWT Token
+    // 生成 access_token
     public String generateTokenForUser(String employeeId, String systemName, String clientId) {
-        if (employeeId == null || employeeId.isEmpty() || systemName == null || systemName.isEmpty() || clientId == null || clientId.isEmpty()) {
-            log.error(">>>>> Invalid input parameters for generating user token: employeeId={}, systemName={}, clientId={}", employeeId, systemName, clientId);
+        if (employeeId == null || systemName == null || clientId == null) {
+            log.error(">>>>> Invalid parameters: employeeId={}, systemName={}, clientId={}", employeeId, systemName, clientId);
             return null;
         }
 
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpiration);
 
-        Optional<User> employee = userService.findUserByEmployeeId(employeeId);
-        if (employee.isEmpty()) {
-            log.error(">>>>> User not found with employeeId: {}", employeeId);
+        Optional<User> employeeOpt = userService.findUserByEmployeeId(employeeId);
+        if (employeeOpt.isEmpty()) {
+            log.error(">>>>> User not found by employeeId: {}", employeeId);
             return null;
         }
 
-        User user = employee.get();
-        Set<Permission> userPermissions = userService.getUserPermissions(employeeId);
+        User user = employeeOpt.get();
+        Set<Permission> permissions = userService.getUserPermissions(employeeId);
         Set<Role> roles = user.getRoles();
 
         try {
-            return Jwts.builder().setSubject(user.getUsername()).claim(CLAIM_EMPLOYEE_ID, employeeId).claim(CLAIM_ROLES, roles).claim(CLAIM_PERMISSIONS, userPermissions).claim(CLAIM_SYSTEM, systemName).claim(CLAIM_CLIENT_ID, clientId).setIssuedAt(now).setExpiration(expiryDate).signWith(jwtSecretKey, SignatureAlgorithm.HS256).compact();
+            return Jwts.builder()
+                    .setSubject(user.getUsername())
+                    .claim(CLAIM_EMPLOYEE_ID, employeeId)
+                    .claim(CLAIM_ROLES, roles)
+                    .claim(CLAIM_PERMISSIONS, permissions)
+                    .claim(CLAIM_SYSTEM, systemName)
+                    .claim(CLAIM_CLIENT_ID, clientId)
+                    .setIssuedAt(now)
+                    .setExpiration(expiryDate)
+                    .signWith(jwtSecretKey, SignatureAlgorithm.HS256)
+                    .compact();
         } catch (Exception e) {
-            log.error(">>>>> Failed to generate JWT token for user: {}", employeeId, e);
+            log.error(">>>>> Error generating access token for user: {}", employeeId, e);
             return null;
         }
     }
 
-    // 生成第三方系统调用 Token (client credentials 模式)
+    // ⭐ 生成 refresh_token（只保存 employeeId、system、clientId 等关键信息）
+    public String generateRefreshTokenForUser(String employeeId, String systemName, String clientId) {
+        if (employeeId == null || systemName == null || clientId == null) {
+            log.error(">>>>> Invalid parameters for refresh token: employeeId={}, systemName={}, clientId={}", employeeId, systemName, clientId);
+            return null;
+        }
+
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtRefreshExpiration);
+
+        try {
+            return Jwts.builder()
+                    .setSubject(employeeId)
+                    .claim(CLAIM_EMPLOYEE_ID, employeeId)
+                    .claim(CLAIM_SYSTEM, systemName)
+                    .claim(CLAIM_CLIENT_ID, clientId)
+                    .setIssuedAt(now)
+                    .setExpiration(expiryDate)
+                    .signWith(jwtSecretKey, SignatureAlgorithm.HS256)
+                    .compact();
+        } catch (Exception e) {
+            log.error(">>>>> Error generating refresh token for user: {}", employeeId, e);
+            return null;
+        }
+    }
+
     public String generateTokenForClient(String clientId) {
         if (clientId == null || clientId.isEmpty()) {
-            log.error(">>>>> Invalid client ID provided for generating client token: clientId={}", clientId);
+            log.error(">>>>> Invalid clientId for client credentials token");
             return null;
         }
 
         OAuthClient client = oAuthClientService.findByClientId(clientId);
         if (client == null) {
-            log.error(">>>>> OAuth client not found with clientId: {}", clientId);
+            log.error(">>>>> OAuth client not found: {}", clientId);
             return null;
         }
 
@@ -132,62 +161,99 @@ public class JwtTokenProvider {
         Date expiryDate = new Date(now.getTime() + jwtExpiration);
 
         try {
-            return Jwts.builder().setSubject("system_call").claim(CLAIM_CLIENT_ID, client.getClientId()).claim("client_name", client.getClientName()).claim(CLAIM_SYSTEM, client.getSystemName()).setIssuedAt(now).setExpiration(expiryDate).signWith(jwtSecretKey, SignatureAlgorithm.HS256).compact();
+            return Jwts.builder()
+                    .setSubject("system_call")
+                    .claim(CLAIM_CLIENT_ID, clientId)
+                    .claim("client_name", client.getClientName())
+                    .claim(CLAIM_SYSTEM, client.getSystemName())
+                    .setIssuedAt(now)
+                    .setExpiration(expiryDate)
+                    .signWith(jwtSecretKey, SignatureAlgorithm.HS256)
+                    .compact();
         } catch (Exception e) {
-            log.error(">>>>> Failed to generate JWT token for client: {}", clientId, e);
+            log.error(">>>>> Error generating client token: {}", clientId, e);
             return null;
         }
     }
 
-    // 从 Token 获取 Claims
+    // 通用解析
     private Claims parseClaims(String token) {
         if (token == null || token.isEmpty()) {
-            log.error(">>>>> Invalid token provided for parsing claims.");
+            log.error(">>>>> Provided token is null or empty.");
             return null;
         }
 
         try {
-            return Jwts.parserBuilder().setSigningKey(jwtSecretKey).build().parseClaimsJws(token).getBody();
-        } catch (CredentialsExpiredException e) {
-            log.warn(">>>>> JWT token has expired: {}", token, e);
-            return null;
-        } catch (AuthenticationException e) {
-            log.error(">>>>> Failed to parse JWT token: {}", token, e);
-            return null;
-        }
-    }
-
-    // 验证 JWT 是否有效
-    public boolean validateToken(String token) {
-        if (token == null || token.isEmpty()) {
-            log.error(">>>>> Invalid token provided for validation.");
-            return false;
-        }
-
-        try {
-            parseClaims(token);
-            return true;
+            return Jwts.parserBuilder()
+                    .setSigningKey(jwtSecretKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (ExpiredJwtException e) {
+            log.warn(">>>>> JWT token expired: {}", e.getMessage());
+            return e.getClaims(); // 注意：过期也可以解析出来 claims
         } catch (Exception e) {
-            log.warn(">>>>> Validation failed for token: {}", token, e);
+            log.error(">>>>> Failed to parse JWT token: {}", e.getMessage(), e);
+            return null;
+        }
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            Claims claims = parseClaims(token);
+            return claims != null;
+        } catch (Exception e) {
+            log.warn(">>>>> Token validation failed: {}", e.getMessage());
             return false;
         }
     }
 
-    // 获取用户名
     public String getUsernameFromToken(String token) {
         Claims claims = parseClaims(token);
-        if (claims == null) {
-            return null;
-        }
-        return claims.getSubject();
+        return claims != null ? claims.getSubject() : null;
     }
 
-    // 获取 client_id
     public String getClientIdFromToken(String token) {
         Claims claims = parseClaims(token);
-        if (claims == null) {
-            return null;
+        return claims != null ? (String) claims.get(CLAIM_CLIENT_ID) : null;
+    }
+
+    public String getEmployeeIdFromToken(String token) {
+        Claims claims = parseClaims(token);
+        return claims != null ? (String) claims.get(CLAIM_EMPLOYEE_ID) : null;
+    }
+
+    public List<String> getRolesFromToken(String token) {
+        Claims claims = parseClaims(token);
+        if (claims == null) return Collections.emptyList();
+
+        Object roles = claims.get(CLAIM_ROLES);
+        if (roles instanceof List<?>) {
+            return ((List<?>) roles).stream()
+                    .map(Object::toString)
+                    .collect(Collectors.toList());
         }
-        return (String) claims.get(CLAIM_CLIENT_ID);
+        return Collections.emptyList();
+    }
+
+    public Date getExpirationDateFromToken(String token) {
+        Claims claims = parseClaims(token);
+        return claims != null ? claims.getExpiration() : null;
+    }
+
+    public CustomUserDetails getUserDetailsFromToken(String token) {
+        Claims claims = parseClaims(token);
+        if (claims == null) return null;
+
+        Long id = claims.getId() != null ? Long.parseLong(claims.getId()) : null;
+        String employeeId = claims.get(CLAIM_EMPLOYEE_ID) != null ? claims.get(CLAIM_EMPLOYEE_ID).toString() : null;
+        String username = claims.getSubject() != null ? claims.getSubject() : null;
+
+        return new CustomUserDetails(id, employeeId, username, null, true, Collections.emptySet());
+    }
+
+    public String getSystemNameFromToken(String token) {
+        Claims claims = parseClaims(token);
+        return claims != null ? (String) claims.get(CLAIM_SYSTEM) : null;
     }
 }

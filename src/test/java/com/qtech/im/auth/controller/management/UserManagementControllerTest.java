@@ -1,7 +1,8 @@
 package com.qtech.im.auth.controller.management;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.qtech.im.auth.service.api.IUserService;
+import com.qtech.im.auth.controller.api.UserController;
+import com.qtech.im.auth.service.management.IUserService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,7 @@ import java.util.Collections;
  * desc   :
  */
 
-@WebMvcTest(UserManagementController.class)
+@WebMvcTest(UserController.class)
 class UserManagementControllerTest {
 
     @Autowired

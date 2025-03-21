@@ -1,5 +1,6 @@
 package com.qtech.im.auth.exception.biz;
 
+import com.qtech.im.auth.common.ResultCode;
 import com.qtech.im.auth.exception.authentication.AuthenticationException;
 
 /**
@@ -10,11 +11,10 @@ import com.qtech.im.auth.exception.authentication.AuthenticationException;
  */
 
 public class UserNotFoundException extends AuthenticationException {
-    public UserNotFoundException(String message) {
-        super(message);
+    public UserNotFoundException() {
+        super(ResultCode.USER_NOT_FOUND);
     }
-
-    public UserNotFoundException(String message, Throwable cause) {
-        super(message, cause);
+    public UserNotFoundException(String message) {
+        super(ResultCode.USER_NOT_FOUND, message);
     }
 }

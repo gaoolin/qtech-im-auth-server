@@ -3,7 +3,7 @@ package com.qtech.im.auth.controller.api;
 import com.qtech.im.auth.common.Result;
 import com.qtech.im.auth.model.Permission;
 import com.qtech.im.auth.model.Role;
-import com.qtech.im.auth.service.api.IUserService;
+import com.qtech.im.auth.service.management.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

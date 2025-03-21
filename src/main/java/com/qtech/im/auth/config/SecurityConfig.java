@@ -74,7 +74,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // 密码编码器 使用 PasswordEncoder 加密密码
+    // 密码编码器 使用 PasswordEncryptor 加密密码
     // 使用 BCryptPasswordEncoder 进行密码加密，符合 Spring Security 规范
     @Bean
     public PasswordEncoder passwordEncoder() {

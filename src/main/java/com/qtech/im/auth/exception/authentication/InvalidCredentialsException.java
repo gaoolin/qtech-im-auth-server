@@ -1,5 +1,7 @@
 package com.qtech.im.auth.exception.authentication;
 
+import com.qtech.im.auth.common.ResultCode;
+
 /**
  * author :  gaozhilin
  * email  :  gaoolin@gmail.com
@@ -8,11 +10,11 @@ package com.qtech.im.auth.exception.authentication;
  */
 
 public class InvalidCredentialsException extends AuthenticationException {
-    public InvalidCredentialsException(String message) {
-        super(message);
+    public InvalidCredentialsException() {
+        super(ResultCode.NO_PERMISSION);
     }
 
-    public InvalidCredentialsException(String message, Throwable cause) {
-        super(message, cause);
+    public InvalidCredentialsException(String message) {
+        super(ResultCode.NO_PERMISSION, message);
     }
 }
