@@ -23,6 +23,9 @@
             <label for="password" class="form-label">密码</label>
             <input type="password" class="form-control" id="password" name="password" required>
         </div>
+        <!-- 添加隐藏参数 -->
+        <input type="hidden" name="systemName" value="认证中心">
+        <input type="hidden" name="clientId" value="auth-center">
         <button type="submit" class="btn btn-primary w-100">登录</button>
     </form>
     <div id="errorMsg" class="text-danger mt-3 text-center" style="display: none;">登录失败，请检查用户名和密码</div>
@@ -37,15 +40,9 @@
 
     // 监听页面加载事件
     window.onload = function () {
-        const token = getUrlParam('token');
         const error = getUrlParam('error');
 
-        if (token) {
-            // 存储 Token 到 localStorage
-            localStorage.setItem('token', token);
-            // 重定向到 /home 页面
-            window.location.href = '/home';
-        } else if (error) {
+        if (error) {
             // 显示错误信息
             $('#errorMsg').show();
         }
@@ -54,4 +51,3 @@
 
 </body>
 </html>
-

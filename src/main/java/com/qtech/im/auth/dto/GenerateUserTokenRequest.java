@@ -9,10 +9,22 @@ package com.qtech.im.auth.dto;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 public class GenerateUserTokenRequest {
     private String employeeId;
+    private String username;
+    private Long departmentId;
+    private String departmentName;
     private String systemName;
     private String clientId;
+    private String permissionName;
+    private String resourceName;
+    private String actionType;
+    private String applicationName;
+    private LocalDateTime createAt;
+    private LocalDateTime updateAt;
+    private String description;
 }
 

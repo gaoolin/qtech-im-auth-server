@@ -18,7 +18,7 @@ import java.util.Base64;
 @Service
 public class ApiKeyValidationService {
 
-    @Value("${security.jwt.secret}")
+    @Value("${jwt.secret}")
     private String jwtSecret;
 
     // 校验 API Key

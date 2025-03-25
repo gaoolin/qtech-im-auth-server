@@ -3,10 +3,14 @@ package com.qtech.im.auth.controller.management;
 import com.qtech.im.auth.common.JwtTokenProvider;
 import com.qtech.im.auth.common.Result;
 import com.qtech.im.auth.common.ResultCode;
+import com.qtech.im.auth.dto.GenerateUserTokenRequest;
 import com.qtech.im.auth.dto.RefreshTokenRequest;
 import com.qtech.im.auth.model.User;
 import com.qtech.im.auth.service.management.IUserService;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,9 +28,9 @@ import java.util.stream.Collectors;
 
 @Controller
 @Slf4j
+@CrossOrigin(origins = "*")
 @RequestMapping("/auth")
 public class AuthCenterController {
-    private static final String THIS_CLIENT_ID = "AUTH-CENTER";
     private final JwtTokenProvider jwtTokenProvider;
     private final IUserService userService;
 
@@ -42,15 +46,20 @@ public class AuthCenterController {
     }
 
     @PostMapping("/login")
-    public String doLogin(@RequestParam String username, @RequestParam String password, HttpServletRequest request) {
-        // 调用认证服务进行校验
+    public String doLogin(@RequestParam String username, @RequestParam String password, @RequestParam String systemName, @RequestParam String clientId, HttpServletRequest request) {
+        GenerateUserTokenRequest generateUserTokenRequest = new GenerateUserTokenRequest();
+        generateUserTokenRequest.setEmployeeId(username);
+        generateUserTokenRequest.setSystemName(systemName);
+        generateUserTokenRequest.setClientId(clientId);
+
         if (userService.authenticate(username, password)) {
-            String token = jwtTokenProvider.generateTokenForUser(username, "认证中心", THIS_CLIENT_ID);
-            if (token == null) {
-                return "redirect:/auth/login?error=true";
-            }
+            String accessToken = jwtTokenProvider.generateTokenForUser(generateUserTokenRequest);
+            String refreshToken = jwtTokenProvider.generateRefreshTokenForUser(generateUserTokenRequest);
+
             // 使用 HTTP Header 传递 Token
-            request.getSession().setAttribute("token", token);
+            request.getSession().setAttribute("access_token", accessToken);
+            request.getSession().setAttribute("refresh_token", refreshToken);
+
             return "redirect:/auth/home";
         }
         return "redirect:/auth/login?error=true"; // 登录失败重定向到登录页
@@ -58,13 +67,13 @@ public class AuthCenterController {
 
     @GetMapping("/home")
     public String homePage(HttpServletRequest request, Model model) {
-        String token = (String) request.getSession().getAttribute("token");
-        model.addAttribute("token", token);
+        String token = (String) request.getSession().getAttribute("access_token");
+        model.addAttribute("access_token", token);
 
         if (token != null && jwtTokenProvider.validateToken(token)) {
             // 从 token 中解析用户名
-            String username = jwtTokenProvider.getUsernameFromToken(token);
-            model.addAttribute("username", username);
+            String employeeId = jwtTokenProvider.getEmployeeIdFromToken(token);
+            model.addAttribute("username", employeeId);
         } else {
             model.addAttribute("username", "访客");
         }
@@ -72,48 +81,46 @@ public class AuthCenterController {
         return "home";
     }
 
-    @GetMapping("/users")
-    public String getUserInfo(Model model) {
-        List<?> users = userService.findAllUsers();
-        model.addAttribute("users", users); // 一次性添加所有用户信息
-        return "user-list";
-    }
-
-    @GetMapping("/users/list")
-    @ResponseBody
-    public List<User> getUserInfo(@RequestParam(required = false) String keyword) {
-        List<User> users = userService.findAllUsers();
-        if (keyword != null && !keyword.isEmpty()) {
-            users = users.stream()
-                    .filter(u -> u.getEmployeeId().contains(keyword) || u.getUsername().contains(keyword))
-                    .collect(Collectors.toList());
-        }
-        return users;
-    }
-
-
     @PostMapping("/refresh")
-    public Result<?> refreshAccessToken(@RequestBody RefreshTokenRequest refreshTokenRequest) {
-        try {
-            String refreshToken = refreshTokenRequest.getRefreshToken();
-            // 验证 refresh token
-            if (jwtTokenProvider.validateToken(refreshToken)) {
-                String username = jwtTokenProvider.getUsernameFromToken(refreshToken);
-                String systemName = jwtTokenProvider.getSystemNameFromToken(refreshToken);
-                String appName = jwtTokenProvider.getClientIdFromToken(refreshToken);
-                // 根据 refreshToken 生成新的 accessToken
-                String newAccessToken = jwtTokenProvider.generateTokenForUser(username, systemName, appName);
-                return Result.success(new RefreshTokenRequest(newAccessToken));
-            } else {
-                return Result.failure(ResultCode.CUSTOM_ERROR, "无效的 refresh token");
-            }
-        } catch (IllegalArgumentException e) {
-            log.error("刷新 access token 出错 - 参数非法", e);
-            return Result.failure(ResultCode.PARAM_ILLEGAL, "参数非法");
-        } catch (Exception e) {
-            log.error("刷新 access token 出错", e);
-            return Result.failure(ResultCode.CUSTOM_ERROR, "刷新 access token 出错");
+    @ResponseBody
+    public Result<?> refreshAccessToken(@CookieValue(value = "refresh_token", required = false) String refreshToken, HttpServletResponse response) {
+        if (refreshToken != null && jwtTokenProvider.validateToken(refreshToken)) {
+            String username = jwtTokenProvider.getUsernameFromToken(refreshToken);
+            String systemName = jwtTokenProvider.getSystemNameFromToken(refreshToken);
+            String clientId = jwtTokenProvider.getClientIdFromToken(refreshToken);
+
+            GenerateUserTokenRequest generateUserTokenRequest = new GenerateUserTokenRequest();
+            generateUserTokenRequest.setEmployeeId(username);
+            generateUserTokenRequest.setSystemName(systemName);
+            generateUserTokenRequest.setClientId(clientId);
+            String newAccessToken = jwtTokenProvider.generateTokenForUser(generateUserTokenRequest);
+
+            Cookie newAccessCookie = new Cookie("access_token", newAccessToken);
+            newAccessCookie.setHttpOnly(true);
+            newAccessCookie.setPath("/");
+            newAccessCookie.setMaxAge(60 * 30);
+            response.addCookie(newAccessCookie);
+
+            return Result.success(new RefreshTokenRequest(newAccessToken));
+        } else {
+            return Result.failure(ResultCode.UNAUTHORIZED, "无效的 refresh token");
         }
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpServletResponse response) {
+        // 清除 Cookie
+        Cookie accessCookie = new Cookie("access_token", null);
+        accessCookie.setPath("/");
+        accessCookie.setMaxAge(0);
+        response.addCookie(accessCookie);
+
+        Cookie refreshCookie = new Cookie("refresh_token", null);
+        refreshCookie.setPath("/");
+        refreshCookie.setMaxAge(0);
+        response.addCookie(refreshCookie);
+
+        return "redirect:/auth/login";
     }
 
     @GetMapping("/test")

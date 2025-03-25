@@ -3,10 +3,6 @@ server:
   servlet:
     context-path: /
 
-security:
-  jwt:
-    secret: my-secret-key # 请替换为更强的密钥
-
 spring:
   application:
     name: im-auth
@@ -58,7 +54,9 @@ spring:
       database: 0
   web:
     resources:
-      static-locations: classpath:/static/
+      static-locations: classpath:/static/  # 告诉 Spring 去哪里找资源（静态文件的真实物理位置）
+#  mvc:
+#    static-path-pattern: /static/**  #  所有静态资源访问必须通过 /static/ 开头
 
 jwt:
   secret: Qw3nTf6yHp9kLmO0Rs2vBuXzCeJ5tWa1  # 用于签名和验证 JWT

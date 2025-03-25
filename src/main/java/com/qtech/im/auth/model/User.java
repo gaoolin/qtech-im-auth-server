@@ -4,6 +4,7 @@ import com.qtech.im.auth.utils.UserStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -57,4 +58,8 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "ROLE_ID")
     )
     private Set<Role> roles = new HashSet<>();
+    @Column(name = "CREATED_AT")
+    private LocalDateTime createdAt;
+    @Column(name = "UPDATED_AT")
+    private LocalDateTime updatedAt;
 }

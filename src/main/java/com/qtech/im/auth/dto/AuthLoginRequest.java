@@ -11,12 +11,22 @@ import jakarta.validation.constraints.NotBlank;
  */
 
 @Data
-public class LoginRequest {
+public class AuthLoginRequest {
     @NotBlank
     private String username;
 
     @NotBlank
     private String password;
+
+    @NotBlank
+    private String systemName;
+
+    @NotBlank
+    private String clientId;
+
+    private String clientSecret;
+
+    private String grantType;
 
     // Getter & Setter
 }

@@ -1,6 +1,8 @@
 package com.qtech.im.auth.service.management;
 
 import com.qtech.im.auth.model.Role;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
 
@@ -24,4 +26,8 @@ public interface IRoleService {
     Role findRoleByRoleName(String roleName);
 
     Role getOrCreateRole(String roleName);
+
+    Page<Role> findRolesWithConditions(String keyword, PageRequest pageable);
+
+    Page<Role> findAll(PageRequest pageable);
 }

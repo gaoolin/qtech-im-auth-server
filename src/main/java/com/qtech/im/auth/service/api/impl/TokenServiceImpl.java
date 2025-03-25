@@ -26,9 +26,18 @@ public class TokenServiceImpl implements ITokenService {
 
     @Override
     public TokenResponse generateUserToken(GenerateUserTokenRequest request) {
-        log.info(">>>>> Generating user token for employeeId={}, system={}, clientId={}", request.getEmployeeId(), request.getSystemName(), request.getClientId());
+        if (request == null) {
+            throw new IllegalArgumentException("GenerateUserTokenRequest cannot be null");
+        }
+        String employeeId = request.getEmployeeId();
+        String systemName = request.getSystemName();
+        String clientId = request.getClientId();
+        if (employeeId == null || systemName == null || clientId == null) {
+            log.info(">>>>> Generating user token for employeeId={}, system={}, clientId={}", employeeId, systemName, clientId);
+            return null;
+        }
 
-        String token = jwtTokenProvider.generateTokenForUser(request.getEmployeeId(), request.getSystemName(), request.getClientId());
+        String token = jwtTokenProvider.generateTokenForUser(request);
 
         if (token == null) {
             throw new TokenGenerationException("Token generation failed for user: " + request.getEmployeeId());

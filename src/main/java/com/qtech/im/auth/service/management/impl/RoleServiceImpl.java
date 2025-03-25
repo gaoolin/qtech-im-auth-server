@@ -3,10 +3,14 @@ package com.qtech.im.auth.service.management.impl;
 import com.qtech.im.auth.model.Role;
 import com.qtech.im.auth.repository.management.RoleRepository;
 import com.qtech.im.auth.service.management.IRoleService;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -60,5 +64,25 @@ public class RoleServiceImpl implements IRoleService {
             return roleRepository.save(role);
         }
         return byRoleName;
+    }
+
+    @Override
+    public Page<Role> findRolesWithConditions(String keyword, PageRequest pageable) {
+        if (keyword != null && !keyword.isEmpty()) {
+            return roleRepository.findAll((root, query, criteriaBuilder) -> {
+                List<Predicate> predicates = new ArrayList<>();
+                predicates.add(criteriaBuilder.like(root.get("roleName"), "%" + keyword + "%"));
+                return criteriaBuilder.or(predicates.toArray(new Predicate[0]));
+            }, pageable);
+        }
+       return roleRepository.findAll(pageable);
+    }
+
+    @Override
+    public Page<Role> findAll(PageRequest pageable) {
+        if (pageable != null) {
+            return roleRepository.findAll(pageable);
+        }
+        return null;
     }
 }

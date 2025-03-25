@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户管理 - 认证中心</title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <script src="/js/axios.min.js"></script>
+    <script src="/js/jquery-3.6.0.min.js"></script>
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/request.js"></script>
+    <style>
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">认证中心</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="/auth/home">首页</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/auth/users">用户管理</a></li>
+                <li class="nav-item"><a class="nav-link" href="/auth/roles">角色管理</a></li>
+                <li class="nav-item"><a class="nav-link" href="/auth/permissions">权限管理</a></li>
+                <li class="nav-item"><a class="nav-link" href="/auth/logout">退出登录</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="container mt-5">
+    <h2>用户管理</h2>
+    <div class="d-flex mb-3">
+        <input type="text" id="searchKeyword" class="form-control me-2" placeholder="请输入用户名或工号搜索" onkeypress="if(event.keyCode===13) loadUsers()">
+        <button class="btn btn-primary" onclick="loadUsers()">搜索</button>
+        <button class="btn btn-success ms-3" data-bs-toggle="modal" data-bs-target="#addUserModal">新增用户</button>
+    </div>
+
+    <table class="table table-bordered table-hover text-center shadow-sm rounded" style="width: 100%; margin: 0 auto;">
+        <thead class="table-light">
+        <tr>
+            <th class="text-center">工号</th>
+            <th class="text-center">用户名</th>
+            <th class="text-center">部门</th>
+            <th class="text-center">性别</th>
+            <th class="text-center">角色</th>
+            <th class="text-center">权限</th>
+            <th class="text-center">操作</th>
+        </tr>
+        </thead>
+        <tbody id="userTableBody">
+        <tr>
+            <td colspan="5" class="text-center">加载中...</td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="d-flex justify-content-center mt-3">
+        <ul class="pagination" id="pagination">
+            <!-- 分页按钮会动态生成 -->
+        </ul>
+    </div>
+
+</div>
+
+<!-- 新增用户模态框 -->
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">新增用户</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addUserForm">
+                    <div class="mb-3">
+                        <label class="form-label">工号</label>
+                        <input type="text" class="form-control" id="addEmployeeId" required oninput="document.getElementById('addPassword').value = this.value">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">用户名</label>
+                        <input type="text" class="form-control" id="addUsername" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">密码</label>
+                        <input type="text" class="form-control" id="addPassword" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">部门</label>
+                        <input type="text" class="form-control" id="addDepartment">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">性别</label>
+                        <select class="form-select" id="addGender">
+                            <option value="男">男</option>
+                            <option value="女">女</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" onclick="addUser()">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<footer class="text-center text-muted mt-5 mb-3">QTECH 智能制造认证中心 © 2025</footer>
+<!-- 复用 toast 通知 -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    window.accessToken = /*[[${access_token}]]*/ '';
+
+    /*]]>*/
+
+    function showToast(message, type = 'success') {
+        const toastHtml = `
+        <div class="toast align-items-center text-bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">${message}</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>`;
+
+        $('#toastContainer').append(toastHtml);
+        const toastEl = new bootstrap.Toast($('#toastContainer .toast').last()[0]);
+        toastEl.show();
+        setTimeout(() => {
+            $('#toastContainer .toast').first().remove();
+        }, 5000);
+    }
+
+    let currentPage = 0;
+    let pageSize = 10;
+
+    function loadUsers(page = currentPage, size = pageSize) {
+        page = parseInt(page, 10);  // 这里加上，确保 page 是数字
+        size = parseInt(size, 10);
+        const keyword = $('#searchKeyword').val();
+        const tbody = $('#userTableBody');
+        tbody.html('<tr><td colspan="7" class="text-center">加载中...</td></tr>');
+
+        request.get('/users/list', {keyword, page, size})
+            .then(response => {
+                console.log(response)
+                const users = response.content || [];
+                const totalPages = response.totalPages || 0;
+                const totalElements = response.totalElements || 0;
+
+                tbody.empty();
+                if (users.length > 0) {
+                    users.forEach(u => {
+                        tbody.append(`<tr>
+                        <td>${u.employeeId}</td>
+                        <td>${u.username}</td>
+                        <td>${u.department || ''}</td>
+                        <td>${u.gender || ''}</td>
+                        <td>${''}</td>
+                        <td>${u.permissions || ''}</td>
+                        <td>
+                            <button class='btn btn-secondary btn-sm me-2' onclick="showEditModal(${JSON.stringify(u).replace(/"/g, '&quot;')})">编辑</button>
+                            <button class='btn btn-danger btn-sm' onclick="deleteUser('${u.id}')">删除</button>
+                        </td>
+                    </tr>`);
+                    });
+                } else {
+                    tbody.html('<tr><td colspan="7" class="text-center">暂无数据</td></tr>');
+                }
+
+                // 更新分页控件
+                updatePagination(page, totalPages, totalElements);
+            })
+            .catch(err => {
+                showToast('用户加载失败，请稍后重试', 'danger');
+                console.error(err);
+            });
+    }
+
+    function updatePagination(currentPage, totalPages, totalElements) {
+        currentPage = parseInt(currentPage, 10); // 一样加
+        const pagination = $('#pagination');
+        pagination.empty();
+
+        let paginationHtml = '';
+
+        if (currentPage > 0) {
+            paginationHtml += `<li class="page-item"><a class="page-link" href="javascript:loadUsers(${currentPage - 1})">上一页</a></li>`;
+        }
+
+        for (let i = 0; i < totalPages; i++) {
+            paginationHtml += `<li class="page-item ${i === currentPage ? 'active' : ''}">
+            <a class="page-link" href="javascript:loadUsers(${i})">${i + 1}</a>
+        </li>`;
+        }
+
+        if (currentPage < totalPages - 1) {
+            paginationHtml += `<li class="page-item"><a class="page-link" href="javascript:loadUsers(${currentPage + 1})">下一页</a></li>`;
+        }
+
+        pagination.html(paginationHtml);
+    }
+
+    function addUser() {
+        const user = {
+            employeeId: $('#addEmployeeId').val(),
+            username: $('#addUsername').val(),
+            department: $('#addDepartment').val(),
+            gender: $('#addGender').val()
+        };
+        request.post('/users/add', user)
+            .then(response => {
+                if (response.code === 200) {
+                    showToast('新增成功');
+                    $('#addUserModal').modal('hide');
+                    loadUsers();
+                } else {
+                    showToast(response.data, 'warning');
+                }
+            })
+            .catch(err => showToast('新增失败', 'danger'));
+    }
+
+    function showEditModal(user) {
+        $('#editUserId').val(user.id);
+        $('#editEmployeeId').val(user.employeeId);
+        $('#editUsername').val(user.username);
+        $('#editDepartment').val(user.department);
+        $('#editGender').val(user.gender);
+        $('#editUserModal').modal('show');
+    }
+
+    function updateUser() {
+        const id = $('#editUserId').val();
+        const user = {
+            employeeId: $('#editEmployeeId').val(),
+            username: $('#editUsername').val(),
+            department: $('#editDepartment').val(),
+            gender: $('#editGender').val()
+        };
+        request.put(`/users/update/${id}`, user)
+            .then(response => {
+                if (response.code === 200) {
+                    showToast('更新成功');
+                    $('#editUserModal').modal('hide');
+                    loadUsers();
+                } else {
+                    showToast(response.data, 'warning');
+                }
+            })
+            .catch(err => showToast('更新失败', 'danger'));
+    }
+
+    function deleteUser(id) {
+        if (confirm('确认删除此用户？')) {
+            request.delete(`/users/remove/${id}`)
+                .then(response => {
+                    if (response.code === 200) {
+                        showToast('删除成功');
+                        loadUsers();
+                    } else {
+                        showToast(response.data, 'warning');
+                    }
+                })
+                .catch(err => showToast('删除失败', 'danger'));
+        }
+    }
+
+    $(document).ready(function () {
+        loadUsers(0);
+    });
+</script>
+
+<!-- 编辑用户模态框 -->
+<div class="modal fade" id="editUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">编辑用户</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editUserId">
+                <div class="mb-3">
+                    <label class="form-label">工号</label>
+                    <input type="text" class="form-control" id="editEmployeeId">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">用户名</label>
+                    <input type="text" class="form-control" id="editUsername">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">部门</label>
+                    <input type="text" class="form-control" id="editDepartment">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">性别</label>
+                    <select class="form-select" id="editGender">
+                        <option value="男">男</option>
+                        <option value="女">女</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" onclick="updateUser()">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

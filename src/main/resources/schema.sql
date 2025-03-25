@@ -17,6 +17,29 @@ END;
 /
 
 -- **************************************
+-- 系统表：保存系统的基本信息，用于系统维度的授权管理
+-- **************************************
+CREATE TABLE im_auth_system (
+    id NUMBER PRIMARY KEY, -- 主键 ID
+    system_name VARCHAR2(100) NOT NULL UNIQUE, -- 系统名称（唯一）
+    description VARCHAR2(255), -- 系统描述
+    created_at TIMESTAMP DEFAULT SYSTIMESTAMP, -- 创建时间
+    updated_at TIMESTAMP DEFAULT SYSTIMESTAMP -- 更新时间
+);
+
+-- 系统表序列
+CREATE SEQUENCE seq_im_auth_system START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+
+-- 系统表触发器
+CREATE OR REPLACE TRIGGER trg_im_auth_system
+    BEFORE INSERT ON im_auth_system
+    FOR EACH ROW
+BEGIN
+    :NEW.id := seq_im_auth_system.NEXTVAL;
+END;
+/
+
+-- **************************************
 -- 用户表：保存系统用户基础信息
 -- **************************************
 CREATE TABLE im_auth_user (

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>角色管理 - 认证中心</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css"/>
+    <script src="/js/axios.min.js"></script>
+    <script src="/js/jquery-3.6.0.min.js"></script>
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <meta name="csrf-token" content="{{ csrf_token() }}"/>
+    <script src="/js/request.js"></script>
+    </meta>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">认证中心</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="/auth/home">首页</a></li>
+                <li class="nav-item"><a class="nav-link" href="/auth/users">用户管理</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/auth/roles">角色管理</a></li>
+                <li class="nav-item"><a class="nav-link" href="/auth/permissions">权限管理</a></li>
+                <li class="nav-item"><a class="nav-link" href="/auth/logout">退出登录</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="container mt-5">
+    <h2>角色管理</h2>
+    <div class="d-flex mb-3">
+        <input type="text" class="form-control me-2" id="search" placeholder="请输入角色名称">
+        <button class="btn btn-primary" id="searchBtn">搜索</button>
+        <button class="btn btn-success ms-3" data-bs-toggle="modal" data-bs-target="#addRoleModal">添加</button>
+    </div>
+</div>
+
+<table class="table table-bordered table-hover text-center shadow-sm rounded" style="width: 100%; margin: 0 auto;">
+    <thead class="table-light">
+    <tr>
+        <th class="text-center">角色</th>
+        <th class="text-center">描述</th>
+        <th class="text-center">操作</th>
+    </tr>
+    </thead>
+    <tbody id="roleTableBody">
+    <tr>
+        <td colspan="5" class="text-center">加载中...</td>
+    </tr>
+    </tbody>
+</table>
+<div class="d-flex justify-content-center mt-3">
+    <ul class="pagination" id="pagination">
+        <!-- 分页按钮会动态生成 -->
+    </ul>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<footer class="text-center text-muted mt-5 mb-3">QTECH 智能制造认证中心 © 2025</footer>
+</body>
+
+<!-- 复用 toast 通知 -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    window.accessToken = /*[[${access_token}]]*/ '';
+
+    /*]]>*/
+
+    function showToast(message, type = 'success') {
+        const toastHtml = `
+        <div class="toast align-items-center text-bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">${message}</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>`;
+
+        $('#toastContainer').append(toastHtml);
+        const toastEl = new bootstrap.Toast($('#toastContainer .toast').last()[0]);
+        toastEl.show();
+        setTimeout(() => {
+            $('#toastContainer .toast').first().remove();
+        }, 5000);
+    }
+
+    let currentPage = 0;
+    let pageSize = 10;
+
+    function loadRoles(page = currentPage, size = pageSize) {
+        page = parseInt(page, 10);  // 这里加上，确保 page 是数字
+        size = parseInt(size, 10);
+        const keyword = $('#searchKeyword').val();
+        const tbody = $('#roleTableBody');
+        tbody.html('<tr><td colspan="7" class="text-center">加载中...</td></tr>');
+
+        request.get('/roles/list', {keyword, page, size})
+            .then(response => {
+                console.log(response)
+                const roles = response.content || [];
+                const totalPages = response.totalPages || 0;
+                const totalElements = response.totalElements || 0;
+
+                tbody.empty();
+                if (roles.length > 0) {
+                    roles.forEach(r => {
+                        tbody.append(`<tr>
+                        <td>${r.roleName || ''}</td>
+                        <td>${r.description || ''}</td>
+                        <td>
+                            <button class='btn btn-secondary btn-sm me-2' onclick="showEditModal(${JSON.stringify(r).replace(/"/g, '&quot;')})">编辑</button>
+                            <button class='btn btn-danger btn-sm' onclick="deleteRole('${r.id}')">删除</button>
+                        </td>
+                    </tr>`);
+                    });
+                } else {
+                    tbody.html('<tr><td colspan="7" class="text-center">暂无数据</td></tr>');
+                }
+
+                // 更新分页控件
+                updatePagination(page, totalPages, totalElements);
+            })
+            .catch(err => {
+                showToast('用户加载失败，请稍后重试', 'danger');
+                console.error(err);
+            });
+    }
+
+    function deleteRole(id) {
+        request.delete(`/roles/${id}`)
+            .then(response => {
+                showToast('删除成功', 'success');
+                loadRoles();
+            })
+            .catch(err => {
+                showToast('删除失败，请稍后重试', 'danger');
+                console.error(err);
+            });
+    }
+
+    function updatePagination(currentPage, totalPages, totalElements) {
+        const paginationContainer = $('#pagination');
+    }
+
+    $(document).ready(function () {
+        loadRoles(0);
+    });
+</script>
+</html>

@@ -3,6 +3,8 @@ package com.qtech.im.auth.service.management;
 import com.qtech.im.auth.model.Permission;
 import com.qtech.im.auth.model.Role;
 import com.qtech.im.auth.model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -47,6 +49,8 @@ public interface IUserService {
 
     User updateUser(Long id, User userDetails);
 
+    Integer updateUserByEmployeeId(String employeeId, User userDetails);
+
     void deleteUserByEmployeeId(String employeeId);
 
     void deleteUser(Long id);
@@ -56,4 +60,8 @@ public interface IUserService {
     Integer updateUserPermissions(String employeeId, List<Long> permissionIds);
 
     boolean authenticate(String employeeId, String password);
+
+    Page<User> findUsersWithConditions(String employeeId, String username, Pageable pageable);
+
+    Page<User> findAll(Pageable pageable);
 }

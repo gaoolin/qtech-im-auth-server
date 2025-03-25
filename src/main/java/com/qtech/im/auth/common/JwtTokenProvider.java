@@ -1,6 +1,8 @@
 package com.qtech.im.auth.common;
 
+import com.qtech.im.auth.dto.GenerateUserTokenRequest;
 import com.qtech.im.auth.exception.biz.ParamIllegalException;
+import com.qtech.im.auth.exception.biz.TokenGenerationException;
 import com.qtech.im.auth.model.OAuthClient;
 import com.qtech.im.auth.model.Permission;
 import com.qtech.im.auth.model.Role;
@@ -82,10 +84,14 @@ public class JwtTokenProvider {
     }
 
     // 生成 access_token
-    public String generateTokenForUser(String employeeId, String systemName, String clientId) {
-        if (employeeId == null || systemName == null || clientId == null) {
-            log.error(">>>>> Invalid parameters: employeeId={}, systemName={}, clientId={}", employeeId, systemName, clientId);
-            return null;
+    public String generateTokenForUser(GenerateUserTokenRequest request) {
+        String employeeId = request.getEmployeeId();
+        String username = request.getUsername();
+        String systemName = request.getSystemName();
+        String clientId = request.getClientId();
+        if ((request.getUsername() == null && request.getEmployeeId() == null) || systemName == null || clientId == null) {
+            log.error(">>>>> Invalid parameters for access token: username={}, employeeId={}, systemName={}, clientId={}", username, employeeId, systemName, clientId);
+            throw new TokenGenerationException("Invalid parameters for access token");
         }
 
         Date now = new Date();
@@ -105,6 +111,7 @@ public class JwtTokenProvider {
             return Jwts.builder()
                     .setSubject(user.getUsername())
                     .claim(CLAIM_EMPLOYEE_ID, employeeId)
+                    .claim(CLAIM_USERNAME, username)
                     .claim(CLAIM_ROLES, roles)
                     .claim(CLAIM_PERMISSIONS, permissions)
                     .claim(CLAIM_SYSTEM, systemName)
@@ -120,9 +127,14 @@ public class JwtTokenProvider {
     }
 
     // ⭐ 生成 refresh_token（只保存 employeeId、system、clientId 等关键信息）
-    public String generateRefreshTokenForUser(String employeeId, String systemName, String clientId) {
-        if (employeeId == null || systemName == null || clientId == null) {
-            log.error(">>>>> Invalid parameters for refresh token: employeeId={}, systemName={}, clientId={}", employeeId, systemName, clientId);
+    public String generateRefreshTokenForUser(GenerateUserTokenRequest request) {
+        String employeeId = request.getEmployeeId();
+        String username = request.getUsername();
+        String systemName = request.getSystemName();
+        String clientId = request.getClientId();
+
+        if ((request.getUsername() == null && request.getEmployeeId() == null) || systemName == null || clientId == null) {
+            log.error(">>>>> Invalid parameters for refresh token: username={} employeeId={}, systemName={}, clientId={}", username, employeeId, systemName, clientId);
             return null;
         }
 
@@ -133,6 +145,7 @@ public class JwtTokenProvider {
             return Jwts.builder()
                     .setSubject(employeeId)
                     .claim(CLAIM_EMPLOYEE_ID, employeeId)
+                    .claim(CLAIM_USERNAME, username)
                     .claim(CLAIM_SYSTEM, systemName)
                     .claim(CLAIM_CLIENT_ID, clientId)
                     .setIssuedAt(now)

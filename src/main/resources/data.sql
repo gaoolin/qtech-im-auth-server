@@ -7,10 +7,9 @@
 -- API Key 和 OAuth 客户端：为用户生成 API Key，并插入 OAuth 客户端配置。
 -- 会话管理：插入示例会话数据。
 -- 审计日志：插入用户操作的审计日志。
-
 -- 插入用户（示例 10 个用户）
 INSERT INTO im_auth_user (employee_id, username, password_hash, email, department, section, gender, status)
-VALUES ('E1001', 'zhangsan', 'hashed_password_1', 'zhangsan@company.com', '生产部', 'SMT一线', '男', 'ACTIVE');
+VALUES ('E1001', 'zhangsan', '$2a$10$Rh.CtQ2MiB3gKbBrTTj2sOXsikqzSNrPast9P/N82Kn66MoiHjVOS', 'zhangsan@company.com', '生产部', 'SMT一线', '男', 'ACTIVE');  -- password: admin123
 INSERT INTO im_auth_user (employee_id, username, password_hash, email, department, section, gender, status)
 VALUES ('E1002', 'lisi', 'hashed_password_2', 'lisi@company.com', '设备部', '设备维护组', '男', 'ACTIVE');
 INSERT INTO im_auth_user (employee_id, username, password_hash, email, department, section, gender, status)
@@ -91,5 +90,6 @@ INSERT INTO im_auth_audit_log (user_id, action, ip_address)
 VALUES (1, '登录系统', '192.168.0.10');
 INSERT INTO im_auth_audit_log (user_id, action, ip_address)
 VALUES (2, '调整参数', '192.168.0.11');
+
 -- (继续补充模拟历史数据)
 

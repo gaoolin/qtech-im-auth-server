@@ -10,13 +10,14 @@ import com.qtech.im.auth.model.User;
 import com.qtech.im.auth.model.UserPermission;
 import com.qtech.im.auth.repository.management.*;
 import com.qtech.im.auth.service.management.IUserService;
+import jakarta.persistence.criteria.Predicate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -153,17 +154,26 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public User createUser(User user) {
+        if (userRepository.existsByEmployeeId(user.getEmployeeId())) {
+            throw new BusinessException(400, "用户名已存在");
+        }
         return userRepository.save(user);
     }
 
     @Override
-    public User updateUser(Long id, User userDetails) {
-        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
-        user.setUsername(userDetails.getUsername());
-        user.setEmail(userDetails.getEmail());
-        user.setSection(userDetails.getSection());
-        user.setDepartment(userDetails.getDepartment());
-        return userRepository.save(user);
+    public User updateUser(Long id, User user) {
+        User authUser = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        authUser.setUsername(user.getUsername());
+        authUser.setDepartment(user.getDepartment());
+        authUser.setGender(user.getGender());
+        authUser.setEmail(user.getEmail());
+        authUser.setUpdatedAt(LocalDateTime.now());
+        return userRepository.save(authUser);
+    }
+
+    @Override
+    public Integer updateUserByEmployeeId(String employeeId, User user) {
+        return userRepository.updateUserByEmployeeId(employeeId, user);
     }
 
     @Override
@@ -197,5 +207,26 @@ public class UserServiceImpl implements IUserService {
             throw new InvalidCredentialsException();
         }
         throw new UserNotFoundException();
+    }
+
+    @Override
+    public Page<User> findUsersWithConditions(String employeeId, String username, Pageable pageable) {
+        return userRepository.findAll((root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (employeeId != null && !employeeId.isEmpty()) {
+                predicates.add(criteriaBuilder.like(root.get("employeeId"), "%" + employeeId + "%"));
+            }
+            if (username != null && !username.isEmpty()) {
+                predicates.add(criteriaBuilder.like(root.get("username"), "%" + username + "%"));
+            }
+
+            return criteriaBuilder.or(predicates.toArray(new Predicate[0]));
+        }, pageable);
+    }
+
+    @Override
+    public Page<User> findAll(Pageable pageable) {
+        return userRepository.findAll(pageable);
     }
 }

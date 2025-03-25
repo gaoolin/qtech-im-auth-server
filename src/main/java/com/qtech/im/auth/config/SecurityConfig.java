@@ -58,13 +58,18 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)  // 禁用 CSRF，因为我们使用 JWT 进行身份验证
                 .authorizeHttpRequests(auth -> auth.requestMatchers(
-                                "/**",
-                                // "/im/auth/generate",
-                                // "/im/auth/validate",
-                                "/login",
-                                "/api/login",
-                                "/static/**",
-                                "/resources/**")  // 允许特定接口 允许公开访问登录接口
+                                "/auth/login",  // 允许访问所有包含 'login' 的路径
+                                "/auth/logout",
+                                "/auth/home",
+                                "/auth/users",
+                                "/auth/roles",
+                                "/static/**",    // 允许访问静态资源
+                                "/resources/**",
+                                "/public/**",
+                                "/webjars/**",
+                                "/css/**",
+                                "/js/**",
+                                "/images/**")  // 允许访问资源目录 允许特定接口 允许公开访问登录接口
 
                         .permitAll().anyRequest().authenticated()  // 其他接口需要认证
                 )

@@ -65,6 +65,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+        log.info(">>>>> JwtAuthenticationFilter start, request URI: {}", request.getRequestURI());
 
         try {
             // 从请求头中获取 JWT token
@@ -76,19 +77,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 log.debug(">>>>> JWT Token is valid");
 
                 // 获取用户信息
-                String username = jwtTokenProvider.getUsernameFromToken(token);
-                log.debug(">>>>> Username extracted from JWT: {}", username);
+                String employeeId = jwtTokenProvider.getEmployeeIdFromToken(token);
+                log.debug(">>>>> EmployeeId extracted from JWT: {}", employeeId);
 
                 // 创建一个认证对象（包括用户名和权限信息）
                 UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(username, null, null);  // 你可以根据需要设置角色
+                        new UsernamePasswordAuthenticationToken(employeeId, null, null);  // 你可以根据需要设置角色
 
                 // 设置细节信息，常见的就是用户的 IP 等信息
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 // 将认证信息放到 SecurityContext 中
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                log.debug(">>>>> Authentication set in SecurityContext for user: {}", username);
+                log.debug(">>>>> Authentication set in SecurityContext for user: {}", employeeId);
             } else {
                 log.debug(">>>>> JWT Token is invalid or null");
             }
@@ -103,7 +104,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        log.info(">>>>> JwtAuthenticationFilter doFilterInternal");
+        log.info(">>>>> JwtAuthenticationFilter done");
         // 继续执行后续的过滤链
         filterChain.doFilter(request, response);
     }
@@ -122,7 +123,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (bearerToken.length() > 7) {
                 return bearerToken.substring(7);  // 去掉 "Bearer " 前缀
             }
-            log.warn(">>>>> Invalid Authorization header format: {}", bearerToken);
+            log.error(">>>>> Invalid Authorization header format: {}", bearerToken);
         }
         return null;
     }
