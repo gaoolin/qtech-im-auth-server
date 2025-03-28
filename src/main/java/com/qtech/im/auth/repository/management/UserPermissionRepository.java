@@ -15,10 +15,10 @@ import java.util.List;
 
 @Repository
 public interface UserPermissionRepository extends JpaRepository<UserPermission, Long> {
-    List<UserPermission> findByUserEmployeeId(String employeeId);
+    List<UserPermission> findByUserEmpId(String empId);
 
-    void deleteByUserEmployeeIdAndPermissionId(String employeeId, Long permissionId);
+    void deleteByUserEmpIdAndPermId(String empId, Long permId);
 
-    void deleteByUserEmployeeId(String employeeId);
+    void deleteByUserEmpId(String empId);
 }
 

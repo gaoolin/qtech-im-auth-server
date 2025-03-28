@@ -224,10 +224,13 @@
                     $('#addUserModal').modal('hide');
                     loadUsers();
                 } else {
-                    showToast(response.data, 'warning');
+                    showToast(response.data || '新增失败', 'warning');
                 }
             })
-            .catch(err => showToast('新增失败', 'danger'));
+            .catch(err => {
+                showToast('新增失败，请稍后重试', 'danger');
+                console.error(err);
+            });
     }
 
     function showEditModal(user) {
@@ -250,14 +253,17 @@
         request.put(`/users/update/${id}`, user)
             .then(response => {
                 if (response.code === 200) {
-                    showToast('更新成功');
+                    showToast('更新成功', 'success');
                     $('#editUserModal').modal('hide');
                     loadUsers();
                 } else {
-                    showToast(response.data, 'warning');
+                    showToast(response.data || '更新失败', 'danger');
                 }
             })
-            .catch(err => showToast('更新失败', 'danger'));
+            .catch(err => {
+                showToast('更新失败，请稍后重试', 'danger');
+                console.error(err);
+            });
     }
 
     function deleteUser(id) {

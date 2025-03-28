@@ -36,8 +36,8 @@ public class UserDetailsServiceImpl implements UserDetailsService, com.qtech.im.
 
     @Override
     @Transactional(readOnly = true)
-    public UserDetails loadUserByEmployeeId(String employeeId) throws UsernameNotFoundException {
-        Optional<User> user = userRepository.findByEmployeeId(employeeId);
-        return user.map(CustomUserDetails::fromUser).orElseThrow(() -> new UsernameNotFoundException("User not found: " + employeeId));
+    public UserDetails loadUserByEmpId(String empId) throws UsernameNotFoundException {
+        Optional<User> user = userRepository.findByEmpId(empId);
+        return user.map(CustomUserDetails::fromUser).orElseThrow(() -> new UsernameNotFoundException("User not found: " + empId));
     }
 }

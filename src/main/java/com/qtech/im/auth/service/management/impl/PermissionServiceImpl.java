@@ -28,8 +28,8 @@ public class PermissionServiceImpl implements IPermissionService {
     }
 
     @Override
-    public Optional<Permission> findByPermissionName(String permissionName) {
-        return permissionRepository.findByPermissionName(permissionName);
+    public Optional<Permission> findByPermName(String permissionName) {
+        return permissionRepository.findByPermName(permissionName);
     }
 
     @Override
@@ -38,8 +38,8 @@ public class PermissionServiceImpl implements IPermissionService {
     }
 
     @Override
-    public Permission save(Permission permission) {
-        return permissionRepository.save(permission);
+    public Permission save(Permission perm) {
+        return permissionRepository.save(perm);
     }
 
     @Override
@@ -48,74 +48,74 @@ public class PermissionServiceImpl implements IPermissionService {
     }
 
     @Override
-    public Permission getOrCreatePermission(String permissionName) {
-        return permissionRepository.findByPermissionName(permissionName).orElseGet(() -> {
+    public Permission getOrCreatePerm(String permissionName) {
+        return permissionRepository.findByPermName(permissionName).orElseGet(() -> {
             return null;
         });
     }
 
     @Override
-    public Permission getOrCreatePermission(String systemName, String applicationName, String permissionName) {
+    public Permission getOrCreatePerm(String systemName, String applicationName, String permissionName) {
         // 查询是否已经存在该权限
-        Optional<Permission> permission = permissionRepository.findByPermissionNameAndSystemNameAndApplicationName(
+        Optional<Permission> perm = permissionRepository.findByPermNameAndSysNameAndAppName(
                 permissionName, systemName, applicationName);
-        if (permission.isEmpty()) {
+        if (perm.isEmpty()) {
             // 创建新的权限
             Permission newPermission = new Permission();
-            newPermission.setSystemName("IM");
-            newPermission.setPermissionName("READ"); // 设置权限名称
+            newPermission.setSysName("IM");
+            newPermission.setPermName("READ"); // 设置权限名称
             newPermission.setDescription("Default description for " + "READ"); // 设置描述
             return permissionRepository.save(newPermission);
         }
-        return permission.get();
+        return perm.get();
     }
 
     @Override
-    public List<String> getPermissionsByEmployeeIdAndSystem(String employeeId, String systemName) {
+    public List<String> getPermsByEmpIdAndSystem(String employeeId, String systemName) {
         Optional<List<Permission>> byEmployeeIdAndSystemName = permissionRepository.findByEmployeeIdAndSystemName(employeeId, systemName);
         List<Permission> permissions = byEmployeeIdAndSystemName.orElse(null);
         if (permissions != null) {
-            return permissions.stream().map(Permission::getPermissionName).toList();
+            return permissions.stream().map(Permission::getPermName).toList();
         }
         return null;
     }
 
 
     @Override
-    public Permission createPermission(Permission permission) {
-        return permissionRepository.save(permission);
+    public Permission createPerm(Permission perm) {
+        return permissionRepository.save(perm);
     }
 
     @Override
-    public Permission updatePermission(Integer id, Permission permissionDetails) {
+    public Permission updatePerm(Integer id, Permission perm) {
         return null;
     }
 
     @Override
-    public Permission updatePermission(Long id, Permission permissionDetails) {
-        Permission permission = permissionRepository.findById(id).orElseThrow(() -> new RuntimeException("Permission not found"));
-        permission.setPermissionName(permissionDetails.getPermissionName());
-        permission.setDescription(permissionDetails.getDescription());
-        return permissionRepository.save(permission);
+    public Permission updatePerm(Long id, Permission perm) {
+        Permission permDb = permissionRepository.findById(id).orElseThrow(() -> new RuntimeException("Permission not found"));
+        permDb.setPermName(perm.getPermName());
+        permDb.setDescription(perm.getDescription());
+        return permissionRepository.save(perm);
     }
 
     @Override
-    public void deletePermission(Integer id) {
+    public void deletePerm(Integer id) {
 
     }
 
     @Override
-    public List<Permission> findAllPermissions() {
+    public List<Permission> findAllPerms() {
         return permissionRepository.findAll();
     }
 
     @Override
-    public List<Permission> findPermissionsBySystem(String systemName) {
-        return permissionRepository.findBySystemName(systemName);
+    public List<Permission> findPermsBySystem(String systemName) {
+        return permissionRepository.findBySysName(systemName);
     }
 
     @Override
-    public List<Permission> findPermissionsByApplication(String applicationName) {
-        return permissionRepository.findByApplicationName(applicationName);
+    public List<Permission> findPermsByApp(String applicationName) {
+        return permissionRepository.findByAppName(applicationName);
     }
 }

@@ -85,43 +85,43 @@ public class JwtTokenProvider {
 
     // 生成 access_token
     public String generateTokenForUser(GenerateUserTokenRequest request) {
-        String employeeId = request.getEmployeeId();
+        String empId = request.getEmployeeId();
         String username = request.getUsername();
-        String systemName = request.getSystemName();
+        String sysName = request.getSystemName();
         String clientId = request.getClientId();
-        if ((request.getUsername() == null && request.getEmployeeId() == null) || systemName == null || clientId == null) {
-            log.error(">>>>> Invalid parameters for access token: username={}, employeeId={}, systemName={}, clientId={}", username, employeeId, systemName, clientId);
+        if ((request.getUsername() == null && request.getEmployeeId() == null) || sysName == null || clientId == null) {
+            log.error(">>>>> Invalid parameters for access token: username={}, employeeId={}, systemName={}, clientId={}", username, empId, sysName, clientId);
             throw new TokenGenerationException("Invalid parameters for access token");
         }
 
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpiration);
 
-        Optional<User> employeeOpt = userService.findUserByEmployeeId(employeeId);
+        Optional<User> employeeOpt = userService.findUserByEmpId(empId);
         if (employeeOpt.isEmpty()) {
-            log.error(">>>>> User not found by employeeId: {}", employeeId);
+            log.error(">>>>> User not found by employeeId: {}", empId);
             return null;
         }
 
         User user = employeeOpt.get();
-        Set<Permission> permissions = userService.getUserPermissions(employeeId);
+        Set<Permission> permissions = userService.getUserPerms(empId);
         Set<Role> roles = user.getRoles();
 
         try {
             return Jwts.builder()
                     .setSubject(user.getUsername())
-                    .claim(CLAIM_EMPLOYEE_ID, employeeId)
+                    .claim(CLAIM_EMPLOYEE_ID, empId)
                     .claim(CLAIM_USERNAME, username)
                     .claim(CLAIM_ROLES, roles)
                     .claim(CLAIM_PERMISSIONS, permissions)
-                    .claim(CLAIM_SYSTEM, systemName)
+                    .claim(CLAIM_SYSTEM, sysName)
                     .claim(CLAIM_CLIENT_ID, clientId)
                     .setIssuedAt(now)
                     .setExpiration(expiryDate)
                     .signWith(jwtSecretKey, SignatureAlgorithm.HS256)
                     .compact();
         } catch (Exception e) {
-            log.error(">>>>> Error generating access token for user: {}", employeeId, e);
+            log.error(">>>>> Error generating access token for user: {}", empId, e);
             return null;
         }
     }

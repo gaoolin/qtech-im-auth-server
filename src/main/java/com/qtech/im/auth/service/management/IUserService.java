@@ -19,29 +19,29 @@ import java.util.Set;
 
 
 public interface IUserService {
-    Set<Role> getUserRoles(String employeeId);
+    Set<Role> getUserRoles(String empId);
 
-    Set<Permission> getUserPermissions(String employeeId);
+    Set<Permission> getUserPerms(String empId);
 
-    void addRoleToUser(String employeeId, Long roleId);
+    void addRoleToUser(String empId, Long roleId);
 
-    void removeRoleFromUser(String employeeId, Long roleId);
+    void removeRoleFromUser(String empId, Long roleId);
 
-    void addPermissionToUser(String employeeId, Long permissionId);
+    void addPermissionToUser(String empId, Long permId);
 
-    void removePermissionFromUser(String employeeId, Long permissionId);
+    void removePermFromUser(String empId, Long permId);
 
-    void removeAllRolesFromUser(String employeeId);
+    void removeAllRolesFromUser(String empId);
 
-    void removeAllPermissionsFromUser(String employeeId);
+    void removeAllPermsFromUser(String empId);
 
-    Optional<User> findUserByEmployeeId(String employeeId);
+    Optional<User> findUserByEmpId(String empId);
 
     Optional<User> findUserByUsername(String username);
 
     List<User> findUsersBySection(String section);
 
-    List<User> searchUsers(String employeeId, String username, String section);
+    List<User> searchUsers(String empId, String username, String section);
 
     User createUser(User user);
 
@@ -49,19 +49,19 @@ public interface IUserService {
 
     User updateUser(Long id, User userDetails);
 
-    Integer updateUserByEmployeeId(String employeeId, User userDetails);
+    Integer updateUserByEmpId(String empId, User user);
 
-    void deleteUserByEmployeeId(String employeeId);
+    void deleteUserByEmpId(String empId);
 
     void deleteUser(Long id);
 
-    Integer updateUserRoles(String employeeId, List<Long> roleIds);
+    Integer updateUserRoles(String empId, List<Long> roleIds);
 
-    Integer updateUserPermissions(String employeeId, List<Long> permissionIds);
+    Integer updateUserPerms(String empId, List<Long> permissionIds);
 
-    boolean authenticate(String employeeId, String password);
+    boolean authenticate(String empId, String password);
 
-    Page<User> findUsersWithConditions(String employeeId, String username, Pageable pageable);
+    Page<User> findUsersWithConditions(String empId, String username, Pageable pageable);
 
     Page<User> findAll(Pageable pageable);
 }

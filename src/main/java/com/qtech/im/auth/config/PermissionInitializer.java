@@ -22,8 +22,8 @@ public class PermissionInitializer {
 
     @PostConstruct
     public void init() {
-        IPermissionService.getOrCreatePermission("READ_USER");
-        IPermissionService.getOrCreatePermission("WRITE_USER");
-        IPermissionService.getOrCreatePermission("DELETE_USER");
+        IPermissionService.getOrCreatePerm("READ_USER");
+        IPermissionService.getOrCreatePerm("WRITE_USER");
+        IPermissionService.getOrCreatePerm("DELETE_USER");
     }
 }

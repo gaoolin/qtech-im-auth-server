@@ -49,8 +49,8 @@ public class UserServiceImpl implements IUserService {
      */
     @Override
     @Transactional(readOnly = true) // 只读事务，优化查询性能
-    public Set<Role> getUserRoles(String employeeId) {
-        return userRepository.findByEmployeeId(employeeId).map(User::getRoles).orElse(Collections.emptySet());
+    public Set<Role> getUserRoles(String empId) {
+        return userRepository.findByEmpId(empId).map(User::getRoles).orElse(Collections.emptySet());
     }
 
     /**
@@ -58,8 +58,8 @@ public class UserServiceImpl implements IUserService {
      */
     @Override
     @Transactional(readOnly = true) // 只读事务，优化查询性能
-    public Set<Permission> getUserPermissions(String employeeId) {
-        return userRepository.findByEmployeeId(employeeId).map(user -> user.getRoles().stream().flatMap(role -> role.getPermissions().stream()).collect(Collectors.toSet())).orElse(Collections.emptySet());
+    public Set<Permission> getUserPerms(String employeeId) {
+        return userRepository.findByEmpId(employeeId).map(user -> user.getRoles().stream().flatMap(role -> role.getPermissions().stream()).collect(Collectors.toSet())).orElse(Collections.emptySet());
     }
 
     /**
@@ -67,7 +67,7 @@ public class UserServiceImpl implements IUserService {
      */
     @Override
     public void addRoleToUser(String employeeId, Long roleId) {
-        User user = userRepository.findByEmployeeId(employeeId).orElseThrow(() -> new BusinessException(404, "用户不存在"));
+        User user = userRepository.findByEmpId(employeeId).orElseThrow(() -> new BusinessException(404, "用户不存在"));
         Role role = roleRepository.findById(roleId).orElseThrow(() -> new BusinessException(404, "角色不存在"));
 
         if (!user.getRoles().contains(role)) {
@@ -80,52 +80,52 @@ public class UserServiceImpl implements IUserService {
      * 移除用户的指定角色
      */
     @Override
-    public void removeRoleFromUser(String employeeId, Long roleId) {
-        userRoleRepository.deleteByUserEmployeeIdAndRoleId(employeeId, roleId);
+    public void removeRoleFromUser(String empId, Long roleId) {
+        userRoleRepository.deleteByUserEmpIdAndRoleId(empId, roleId);
     }
 
     /**
      * 为用户添加权限（额外权限，不通过角色）
      */
     @Override
-    public void addPermissionToUser(String employeeId, Long permissionId) {
-        User user = userRepository.findByEmployeeId(employeeId).orElseThrow(() -> new BusinessException(404, "用户不存在"));
-        Permission permission = permissionRepository.findById(permissionId).orElseThrow(() -> new BusinessException(404, "权限不存在"));
+    public void addPermissionToUser(String empId, Long permId) {
+        User user = userRepository.findByEmpId(empId).orElseThrow(() -> new BusinessException(404, "用户不存在"));
+        Permission perm = permissionRepository.findById(permId).orElseThrow(() -> new BusinessException(404, "权限不存在"));
 
-        UserPermission userPermission = new UserPermission();
-        userPermission.setUser(user);
-        userPermission.setPermission(permission);
-        userPermissionRepository.save(userPermission);
+        UserPermission userPerm = new UserPermission();
+        userPerm.setUser(user);
+        userPerm.setPermission(perm);
+        userPermissionRepository.save(userPerm);
     }
 
     /**
      * 移除用户的指定权限
      */
     @Override
-    public void removePermissionFromUser(String employeeId, Long permissionId) {
-        userPermissionRepository.deleteByUserEmployeeIdAndPermissionId(employeeId, permissionId);
+    public void removePermFromUser(String empId, Long permId) {
+        userPermissionRepository.deleteByUserEmpIdAndPermId(empId, permId);
     }
 
     /**
      * 删除用户的所有角色
      */
     @Override
-    public void removeAllRolesFromUser(String employeeId) {
-        userRoleRepository.deleteByUserEmployeeId(employeeId);
+    public void removeAllRolesFromUser(String empId) {
+        userRoleRepository.deleteByUserEmpId(empId);
     }
 
     /**
      * 删除用户的所有权限
      */
     @Override
-    public void removeAllPermissionsFromUser(String employeeId) {
-        userPermissionRepository.deleteByUserEmployeeId(employeeId);
+    public void removeAllPermsFromUser(String empId) {
+        userPermissionRepository.deleteByUserEmpId(empId);
     }
 
     @Override
     @Transactional(readOnly = true) // 只读事务，优化查询性能
-    public Optional<User> findUserByEmployeeId(String employeeId) {
-        return userRepository.findByEmployeeId(employeeId);
+    public Optional<User> findUserByEmpId(String employeeId) {
+        return userRepository.findByEmpId(employeeId);
     }
 
     @Override
@@ -149,12 +149,12 @@ public class UserServiceImpl implements IUserService {
     @Override
     @Transactional(readOnly = true) // 只读事务，优化查询性能
     public List<User> searchUsers(String employeeId, String username, String section) {
-        return userRepository.findByEmployeeIdOrUsernameOrSection(employeeId, username, section);
+        return userRepository.findByEmpIdOrUsernameOrSection(employeeId, username, section);
     }
 
     @Override
     public User createUser(User user) {
-        if (userRepository.existsByEmployeeId(user.getEmployeeId())) {
+        if (userRepository.existsByEmpId(user.getEmpId())) {
             throw new BusinessException(400, "用户名已存在");
         }
         return userRepository.save(user);
@@ -172,8 +172,8 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public Integer updateUserByEmployeeId(String employeeId, User user) {
-        return userRepository.updateUserByEmployeeId(employeeId, user);
+    public Integer updateUserByEmpId(String employeeId, User user) {
+        return userRepository.updateUserByEmpId(employeeId, user);
     }
 
     @Override
@@ -182,13 +182,13 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public Integer updateUserPermissions(String employeeId, List<Long> permissionIds) {
+    public Integer updateUserPerms(String empId, List<Long> permIds) {
         return null;
     }
 
     @Override
-    public void deleteUserByEmployeeId(String employeeId) {
-        userRepository.deleteUserByEmployeeId(employeeId);
+    public void deleteUserByEmpId(String empId) {
+        userRepository.deleteUserByEmpId(empId);
     }
 
     @Override
@@ -198,11 +198,11 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public boolean authenticate(String employeeId, String password) {
-        if (userRepository.existsByEmployeeId(employeeId)) {
-            Optional<User> byEmployeeId = userRepository.findByEmployeeId(employeeId);
+        if (userRepository.existsByEmpId(employeeId)) {
+            Optional<User> byEmployeeId = userRepository.findByEmpId(employeeId);
             if (byEmployeeId.isPresent()) {
                 User user = byEmployeeId.get();
-                return PasswordEncryptor.matches(password, user.getPasswordHash());
+                return PasswordEncryptor.matches(password, user.getPwHash());
             }
             throw new InvalidCredentialsException();
         }

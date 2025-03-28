@@ -69,5 +69,3 @@ logging:
     root: info
     com.qtech.im: debug
     org.hibernate.SQL: debug
-    org.hibernate.type.descriptor.sql.BasicBinder: trace
-

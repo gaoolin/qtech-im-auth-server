@@ -1,6 +1,7 @@
 package com.qtech.im.auth.service.management;
 
 import com.qtech.im.auth.model.Permission;
+import com.qtech.im.auth.model.Permission;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,32 +14,32 @@ import java.util.Optional;
  */
 
 public interface IPermissionService {
-    Optional<Permission> findByPermissionName(String permissionName);
+    Optional<Permission> findByPermName(String permName);
 
     List<Permission> findAll();
 
-    Permission save(Permission permission);
+    Permission save(Permission perm);
 
     void deleteById(Long id);
 
     // 新增方法
-    Permission getOrCreatePermission(String permissionName);
+    Permission getOrCreatePerm(String permName);
 
-    Permission getOrCreatePermission(String systemName, String applicationName, String permissionName);
+    Permission getOrCreatePerm(String sysName, String appName, String permName);
 
-    List<String> getPermissionsByEmployeeIdAndSystem(String employeeId, String systemName);
+    List<String> getPermsByEmpIdAndSystem(String empId, String sysName);
 
-    Permission createPermission(Permission permission);
+    Permission createPerm(Permission perm);
 
-    Permission updatePermission(Integer id, Permission permissionDetails);
+    Permission updatePerm(Integer id, Permission perm);
 
-    Permission updatePermission(Long id, Permission permissionDetails);
+    Permission updatePerm(Long id, Permission perm);
 
-    void deletePermission(Integer id);
+    void deletePerm(Integer id);
 
-    List<Permission> findAllPermissions();
+    List<Permission> findAllPerms();
 
-    List<Permission> findPermissionsBySystem(String systemName);
+    List<Permission> findPermsBySystem(String sysName);
 
-    List<Permission> findPermissionsByApplication(String applicationName);
+    List<Permission> findPermsByApp(String appName);
 }

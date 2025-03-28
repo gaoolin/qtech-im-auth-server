@@ -1,0 +1,41 @@
+-- 角色表注释
+COMMENT ON TABLE im_auth_role IS '角色信息表';
+COMMENT ON COLUMN im_auth_role.id IS '主键 ID';
+COMMENT ON COLUMN im_auth_role.role_id IS '角色 ID';
+COMMENT ON COLUMN im_auth_role.role_name IS '角色名称';
+COMMENT ON COLUMN im_auth_role.role_key IS '角色权限字符串';
+COMMENT ON COLUMN im_auth_role.role_sort IS '显示顺序';
+COMMENT ON COLUMN im_auth_role.data_scope IS '数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限 5：仅本人数据权限）';
+COMMENT ON COLUMN im_auth_role.menu_check_strictly IS '菜单树选择项是否关联子级菜单';
+COMMENT ON COLUMN im_auth_role.dept_check_strictly IS '部门树选择项是否关联子级部门';
+COMMENT ON COLUMN im_auth_role.status IS '状态：0 正常 1 停用';
+COMMENT ON COLUMN im_auth_role.del_flag IS '删除标志（0代表存在 1代表删除）';
+COMMENT ON COLUMN im_auth_role.created_at IS '创建时间';
+COMMENT ON COLUMN im_auth_role.updated_at IS '更新时间';
+COMMENT ON COLUMN im_auth_role.created_by IS '创建人';
+COMMENT ON COLUMN im_auth_role.updated_by IS '更新人';
+COMMENT ON COLUMN im_auth_role.description IS '角色描述';
+
+-- 表和字段注释（提高可维护性）
+COMMENT ON TABLE im_auth_user IS '用户信息表';
+COMMENT ON COLUMN im_auth_user.id IS '主键 ID';
+COMMENT ON COLUMN im_auth_user.user_id IS '用户 ID';
+COMMENT ON COLUMN im_auth_user.employee_id IS '工号（唯一）';
+COMMENT ON COLUMN im_auth_user.username IS '用户名（唯一）';
+COMMENT ON COLUMN im_auth_user.nickname IS '昵称';
+COMMENT ON COLUMN im_auth_user.password_hash IS '密码哈希值（建议使用强加密算法如bcrypt）';
+COMMENT ON COLUMN im_auth_user.gender IS '性别：0 未知 1男 2女';
+COMMENT ON COLUMN im_auth_user.dept_id IS '部门 ID';
+COMMENT ON COLUMN im_auth_user.avatar IS '头像';
+COMMENT ON COLUMN im_auth_user.email IS '邮箱';
+COMMENT ON COLUMN im_auth_user.phone IS '手机号码';
+COMMENT ON COLUMN im_auth_user.user_type IS '用户类型：0 系统用户 1 普通用户';
+COMMENT ON COLUMN im_auth_user.status IS '状态：0 正常 1 停用';
+COMMENT ON COLUMN im_auth_user.del_flag IS '删除标志（0代表存在 1代表删除）';
+COMMENT ON COLUMN im_auth_user.login_ip IS '最后登录IP';
+COMMENT ON COLUMN im_auth_user.login_dt IS '最后登录时间';
+COMMENT ON COLUMN im_auth_user.created_at IS '创建时间';
+COMMENT ON COLUMN im_auth_user.updated_at IS '更新时间';
+COMMENT ON COLUMN im_auth_user.created_by IS '创建人';
+COMMENT ON COLUMN im_auth_user.updated_by IS '更新人';
+COMMENT ON COLUMN im_auth_user.description IS '用户描述';

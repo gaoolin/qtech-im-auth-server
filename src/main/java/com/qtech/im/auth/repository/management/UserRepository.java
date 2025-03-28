@@ -1,13 +1,10 @@
 package com.qtech.im.auth.repository.management;
 
 import com.qtech.im.auth.model.User;
-import org.hibernate.query.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +21,7 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
     // 根据工号查询用户，工号唯一
-    Optional<User> findByEmployeeId(String employeeId);
+    Optional<User> findByEmpId(String empId);
 
     // 根据用户名查询用户
     Optional<User> findByUsername(String username);
@@ -33,19 +30,19 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     List<User> findBySection(String section);
 
     // 可以结合多个查询条件来做复杂查询
-    List<User> findByEmployeeIdOrUsernameOrSection(String employeeId, String username, String section);
+    List<User> findByEmpIdOrUsernameOrSection(String empId, String username, String section);
 
     boolean existsByUsername(String username);
 
-    boolean existsByEmployeeId(String employeeId);
+    boolean existsByEmpId(String empId);
 
     @Query("SELECT u FROM User u")
     List<User> findAllUsers();
 
-    void deleteUserByEmployeeId(String employeeId);
+    void deleteUserByEmpId(String empId);
 
     @Modifying
     @Transactional
-    @Query("UPDATE User u SET u.username = :username, u.email = :email, u.department = :department, u.section = :section, u.gender = :gender, u.status = :status WHERE u.employeeId = :employeeId")
-    int updateUserByEmployeeId(String employeeId, User user);
+    @Query("UPDATE User u SET u.username = :username, u.pwHash = :pwHash, u.email = :email, u.section = :section WHERE u.empId = :empId")
+    int updateUserByEmpId(String empId, User user);
 }

@@ -5,7 +5,7 @@ import com.qtech.im.auth.common.Result;
 import com.qtech.im.auth.common.ResultCode;
 import com.qtech.im.auth.model.User;
 import com.qtech.im.auth.service.management.IUserService;
-import com.qtech.im.auth.utils.UserStatus;
+import com.qtech.im.auth.utils.BizStatus;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
@@ -67,10 +67,10 @@ public class AuthUsersController {
     @ResponseBody
     private Result<?> addUser(@RequestBody User user) {
         try {
-            String password = user.getPasswordHash();
+            String password = user.getPwHash();
             String hashPassword = PasswordEncryptor.hashPassword(password);
-            user.setPasswordHash(hashPassword);
-            user.setStatus(UserStatus.ACTIVE);
+            user.setPwHash(hashPassword);
+            user.setStatus(BizStatus.ACTIVE);
             user.setCreatedAt(LocalDateTime.now());
             userService.createUser(user);
             return Result.success();

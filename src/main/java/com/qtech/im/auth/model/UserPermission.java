@@ -23,6 +23,6 @@ public class UserPermission {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "PERMISSION_ID")
+    @JoinColumn(name = "PERM_ID")
     private Permission permission;
 }

@@ -25,37 +25,37 @@ public class UserController {
     @Autowired
     private final IUserService userService;
 
-    @GetMapping("/{employeeId}/roles")
-    public Result<Set<Role>> getUserRoles(@PathVariable String employeeId) {
-        return Result.success(userService.getUserRoles(employeeId));
+    @GetMapping("/{empId}/roles")
+    public Result<Set<Role>> getUserRoles(@PathVariable String empId) {
+        return Result.success(userService.getUserRoles(empId));
     }
 
-    @GetMapping("/{employeeId}/permissions")
-    public Result<Set<Permission>> getUserPermissions(@PathVariable String employeeId) {
-        return Result.success(userService.getUserPermissions(employeeId));
+    @GetMapping("/{empId}/permissions")
+    public Result<Set<Permission>> getUserPermissions(@PathVariable String empId) {
+        return Result.success(userService.getUserPerms(empId));
     }
 
-    @PostMapping("/{employeeId}/roles/{roleId}")
-    public Result<Void> addRoleToUser(@PathVariable String employeeId, @PathVariable Long roleId) {
-        userService.addRoleToUser(employeeId, roleId);
+    @PostMapping("/{empId}/roles/{roleId}")
+    public Result<Void> addRoleToUser(@PathVariable String empId, @PathVariable Long roleId) {
+        userService.addRoleToUser(empId, roleId);
         return Result.success();
     }
 
-    @DeleteMapping("/{employeeId}/roles/{roleId}")
-    public Result<Void> removeRoleFromUser(@PathVariable String employeeId, @PathVariable Long roleId) {
-        userService.removeRoleFromUser(employeeId, roleId);
+    @DeleteMapping("/{empId}/roles/{roleId}")
+    public Result<Void> removeRoleFromUser(@PathVariable String empId, @PathVariable Long roleId) {
+        userService.removeRoleFromUser(empId, roleId);
         return Result.success();
     }
 
-    @PostMapping("/{employeeId}/permissions/{permissionId}")
-    public Result<Void> addPermissionToUser(@PathVariable String employeeId, @PathVariable Long permissionId) {
-        userService.addPermissionToUser(employeeId, permissionId);
+    @PostMapping("/{empId}/permissions/{permId}")
+    public Result<Void> addPermissionToUser(@PathVariable String empId, @PathVariable Long permId) {
+        userService.addPermissionToUser(empId, permId);
         return Result.success();
     }
 
-    @DeleteMapping("/{employeeId}/permissions/{permissionId}")
-    public Result<Void> removePermissionFromUser(@PathVariable String employeeId, @PathVariable Long permissionId) {
-        userService.removePermissionFromUser(employeeId, permissionId);
+    @DeleteMapping("/{empId}/permissions/{permId}")
+    public Result<Void> removePermFromUser(@PathVariable String empId, @PathVariable Long permId) {
+        userService.removePermFromUser(empId, permId);
         return Result.success();
     }
 
@@ -67,7 +67,7 @@ public class UserController {
 
     @DeleteMapping("/{employeeId}/permissions")
     public Result<Void> removeAllPermissionsFromUser(@PathVariable String employeeId) {
-        userService.removeAllPermissionsFromUser(employeeId);
+        userService.removeAllPermsFromUser(employeeId);
         return Result.success();
     }
 }

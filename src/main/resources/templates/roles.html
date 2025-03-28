@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>角色管理 - 认证中心</title>
     <link rel="stylesheet" href="/css/bootstrap.min.css"/>
     <script src="/js/axios.min.js"></script>
@@ -10,7 +10,14 @@
     <script src="/js/bootstrap.bundle.min.js"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}"/>
     <script src="/js/request.js"></script>
-    </meta>
+    <style>
+        #toastContainer {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 9999;
+        }
+    </style>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
@@ -34,29 +41,56 @@
     <h2>角色管理</h2>
     <div class="d-flex mb-3">
         <input type="text" class="form-control me-2" id="search" placeholder="请输入角色名称">
-        <button class="btn btn-primary" id="searchBtn">搜索</button>
-        <button class="btn btn-success ms-3" data-bs-toggle="modal" data-bs-target="#addRoleModal">添加</button>
+        <button class="btn btn-primary" id="searchBtn" onclick="loadRoles()">搜索</button>
+        <button class="btn btn-success ms-3" data-bs-toggle="modal" data-bs-target="#addRoleModal">新增角色</button>
+    </div>
+
+
+    <table class="table table-bordered table-hover text-center shadow-sm rounded" style="width: 100%; margin: 0 auto;">
+        <thead class="table-light">
+        <tr>
+            <th class="text-center">角色</th>
+            <th class="text-center">描述</th>
+            <th class="text-center">操作</th>
+        </tr>
+        </thead>
+        <tbody id="roleTableBody">
+        <tr>
+            <td colspan="5" class="text-center">加载中...</td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="d-flex justify-content-center mt-3">
+        <ul class="pagination" id="pagination">
+            <!-- 分页按钮会动态生成 -->
+        </ul>
     </div>
 </div>
-
-<table class="table table-bordered table-hover text-center shadow-sm rounded" style="width: 100%; margin: 0 auto;">
-    <thead class="table-light">
-    <tr>
-        <th class="text-center">角色</th>
-        <th class="text-center">描述</th>
-        <th class="text-center">操作</th>
-    </tr>
-    </thead>
-    <tbody id="roleTableBody">
-    <tr>
-        <td colspan="5" class="text-center">加载中...</td>
-    </tr>
-    </tbody>
-</table>
-<div class="d-flex justify-content-center mt-3">
-    <ul class="pagination" id="pagination">
-        <!-- 分页按钮会动态生成 -->
-    </ul>
+<div class="modal fade" id="addRoleModal" tabindex="-1" aria-labelledby="addRoleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addRoleModalLabel">添加角色</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addRoleForm">
+                    <div class="mb-3">
+                        <label for="roleName" class="form-label">角色名称</label>
+                        <input type="text" class="form-control" id="roleName" name="roleName" required></input>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">描述</label>
+                        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="addRoleBtn">添加</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="toast-container" id="toastContainer"></div>
@@ -130,11 +164,90 @@
             });
     }
 
-    function deleteRole(id) {
-        request.delete(`/roles/${id}`)
+    function updatePagination(currentPage, totalPages, totalElements) {
+        currentPage = parseInt(currentPage, 10);
+        totalPages = parseInt(totalPages, 10);
+        totalElements = parseInt(totalElements, 10);
+        const pagination = $('#pagination');
+        pagination.empty();
+
+        let paginationHtml = '';
+
+        if (currentPage > 0) {
+            paginationHtml += `<li class="page-item"><a class="page-link" href="javascript:loadRoles(${currentPage - 1})">上一页</a></li>`;
+        }
+
+        for (let i = 0; i < totalPages; i++) {
+            paginationHtml += `<li class="page-item ${currentPage === i ? 'active' : ''}"><a class="page-link" href="javascript:loadRoles(${i})">${i + 1}</a></li>`;
+        }
+
+        if (currentPage < totalPages - 1) {
+            paginationHtml += `<li class="page-item"><a class="page-link" href="javascript:loadRoles(${currentPage + 1})">下一页</a></li>`;
+        }
+
+        pagination.html(paginationHtml);
+    }
+
+    function addRole() {
+        const role = {
+            roleName: $('#roleName').val(),
+            description: $('#description').val()
+        };
+        request.post('/roles/add', role)
             .then(response => {
-                showToast('删除成功', 'success');
-                loadRoles();
+                if (response.code === 200) {
+                    showToast('新增成功', 'success');
+                    $('#addRoleModal').modal('hide');
+                    loadRoles();
+                } else {
+                    showToast(response.data || '新增失败', 'danger');
+                }
+            })
+            .catch(err => {
+                showToast('新增失败，请稍后重试', 'danger');
+                console.error(err);
+            });
+
+    }
+
+    function showEditModal(role) {
+        $('#editRoleId').val(role.id);
+        $('#editRoleName').val(role.roleName);
+        $('#editDescription').val(role.description);
+        $('#editRoleModal').modal('show');
+    }
+
+    function updateRole() {
+        const id = $('#editRoleId').val();
+        const role = {
+            roleName: $('#editRoleName').val(),
+            description: $('#editDescription').val()
+        };
+        request.put(`/roles/update/${id}`, role)
+            .then(response => {
+                if (response.code === 200) {
+                    showToast('更新成功', 'success');
+                    $('#editRoleModal').modal('hide');
+                    loadRoles();
+                } else {
+                    showToast(response.data || '更新失败', 'danger');
+                }
+            })
+            .catch(err => {
+                showToast('更新失败，请稍后重试', 'danger');
+                console.error(err);
+            });
+    }
+
+    function deleteRole(id) {
+        request.delete(`/roles/remove/${id}`)
+            .then(response => {
+                if (response.code === 200) {
+                    showToast('删除成功', 'success');
+                    loadRoles();
+                } else {
+                    showToast(response.data || '删除失败', 'danger');
+                }
             })
             .catch(err => {
                 showToast('删除失败，请稍后重试', 'danger');
@@ -142,12 +255,38 @@
             });
     }
 
-    function updatePagination(currentPage, totalPages, totalElements) {
-        const paginationContainer = $('#pagination');
-    }
-
     $(document).ready(function () {
         loadRoles(0);
     });
 </script>
+
+<div class="modal fade" id="editRoleModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">新增角色</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editRoleForm">
+                    <div class="form-group">
+                        <label for="editRoleName">角色名</label>
+                        <input type="text" class="form-control" id="editRoleName" placeholder="请输入角色名"></input>
+                    </div>
+                    <div class="form-group">
+                        <label for="editDescription">描述</label>
+                        <input type="text" class="form-control" id="editDescription" placeholder="请输入描述"></input>
+                    </div>
+                </form>
+                <input type="hidden" id="editRoleId"></input>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="updateRole()">更新</button>
+            </div>
+        </div>
+    </div>
+</div>
 </html>

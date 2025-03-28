@@ -1,5 +1,6 @@
 package com.qtech.im.auth.controller.management;
 
+import com.qtech.im.auth.common.Result;
 import com.qtech.im.auth.model.Role;
 import com.qtech.im.auth.service.management.IRoleService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -55,5 +56,16 @@ public class AuthRolesController {
             return roleService.findRolesWithConditions(keyword, pageable);
         }
         return roleService.findAll(pageable);
+    }
+
+    @PostMapping("/add")
+    @ResponseBody
+    private Result<?> addRole(@RequestBody Role role) {
+        try {
+            roleService.createRole(role);
+            return Result.success("添加成功");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

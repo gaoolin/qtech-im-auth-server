@@ -2,6 +2,7 @@ package com.qtech.im.auth.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * author :  gaozhilin
@@ -10,10 +11,11 @@ import lombok.Data;
  * desc   :
  */
 
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "IM_AUTH_ROLE_PERMISSION")
 @Data
-public class RolePermission {
+public class RolePermission extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -23,7 +25,7 @@ public class RolePermission {
     private Role role;
 
     @ManyToOne
-    @JoinColumn(name = "PERMISSION_ID")
+    @JoinColumn(name = "PERM_ID")
     private Permission permission;
 }
 

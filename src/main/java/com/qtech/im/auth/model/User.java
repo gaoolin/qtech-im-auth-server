@@ -1,6 +1,6 @@
 package com.qtech.im.auth.model;
 
-import com.qtech.im.auth.utils.UserStatus;
+import com.qtech.im.auth.utils.BizStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -26,30 +26,37 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "EMPLOYEE_ID", unique = true, length = 50)
-    private String employeeId;
+    @Column(name = "EMP_ID", unique = true, length = 50)
+    private String empId;
 
-    @Column(length = 50)
+    @Column(name = "USERNAME", length = 50)
     private String username;
 
-    @Column(name = "PASSWORD_HASH", length = 255)
-    private String passwordHash;
+    @Column(name = "NICKNAME")
+    private String nickName;
+
+    @Column(name = "PW_HASH", length = 255)
+    private String pwHash;
+
+    @Column(name = "GENDER")
+    private String gender;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "DEPT_ID", referencedColumnName = "ID")
+    private Department department;
+
+    @Column(name = "AVATAR")
+    private String avatar;
 
     @Column(length = 100)
     private String email;
 
-    @Column(length = 50)
-    private String department;
-
-    @Column(length = 50)
-    private String section;
-
-    @Column(length = 10)
-    private String gender;
+    @Column(name = "PHONE", length = 50)
+    private String phone;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
-    private UserStatus status;
+    private BizStatus status;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

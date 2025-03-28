@@ -20,20 +20,20 @@ public interface PermissionRepository extends JpaRepository<Permission, Long> {
     // @Query(value = "SELECT * FROM permission WHERE permissionName = :name", nativeQuery = true)
     // Optional<Permission> findByPermissionName(@Param("name") String permissionName);
 
-    Optional<Permission> findByPermissionNameAndSystemNameAndApplicationName(String permissionName, String systemName, String applicationName);
+    Optional<Permission> findByPermNameAndSysNameAndAppName(String permName, String sysName, String appName);
 
-    @Query(value = "SELECT * FROM permission WHERE employeeId = :employeeId AND systemName = :systemName", nativeQuery = true)
-    Optional<List<Permission>> findByEmployeeIdAndSystemName(String employeeId, String systemName);
+    @Query(value = "SELECT * FROM permission WHERE empId = :empId AND sysName = :sysName", nativeQuery = true)
+    Optional<List<Permission>> findByEmployeeIdAndSystemName(String empId, String sysName);
 
     // 根据权限名称查询权限
-    Optional<Permission> findByPermissionName(String permissionName);
+    Optional<Permission> findByPermName(String permName);
 
     // 查询所有权限
     List<Permission> findAll();
 
     // 根据系统名称查询权限
-    List<Permission> findBySystemName(String systemName);
+    List<Permission> findBySysName(String systemName);
 
     // 根据应用名称查询权限
-    List<Permission> findByApplicationName(String applicationName);
+    List<Permission> findByAppName(String applicationName);
 }

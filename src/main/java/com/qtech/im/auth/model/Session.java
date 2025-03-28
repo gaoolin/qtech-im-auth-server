@@ -2,6 +2,7 @@ package com.qtech.im.auth.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
@@ -12,10 +13,11 @@ import java.time.LocalDateTime;
  * desc   :
  */
 
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "IM_AUTH_SESSION")
 @Data
-public class Session {
+public class Session extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -24,9 +26,11 @@ public class Session {
     @JoinColumn(name = "USER_ID")
     private User user;
 
-    @Column(name = "SESSION_TOKEN", length = 255)
+    @Column(name = "SESSION_TOKEN")
     private String sessionToken;
 
+    @Column(name = "EXPIRES_AT")
     private LocalDateTime expiresAt;
+
 }
 

@@ -7,7 +7,7 @@ package com.qtech.im.auth.utils;
  * desc   :
  */
 
-public enum UserStatus {
+public enum BizStatus {
     ACTIVE,
     INACTIVE,
     PENDING,

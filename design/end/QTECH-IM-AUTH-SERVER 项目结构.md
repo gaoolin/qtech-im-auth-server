@@ -50,8 +50,8 @@ QTECH-IM-AUTH-SERVER
 │   │       ├── JwtServiceTest.java    # JWT 相关测试
 │   └── resources
 │       ├── application.yml            # Spring 配置文件
-│       ├── data.sql                    # 初始化 SQL 脚本
-│       ├── schema.sql                   # 数据库表结构
+│       ├── data-bak.sql                    # 初始化 SQL 脚本
+│       ├── schema-bak.sql                   # 数据库表结构
 │       ├── static/                     # 静态资源（前端静态文件）
 │       ├── templates                   # Thymeleaf 模板
 │       └── banner.txt                  # 启动页配置
@@ -114,7 +114,7 @@ API 权限管理
 数据库：Oracle 19
 用户、角色、权限的 ER 设计
 Spring Data JPA 访问数据库
-数据库初始化 SQL（data.sql）
+数据库初始化 SQL（data-bak.sql）
 5. 安全性增强（Security Enhancements）
 密码加密存储（BCrypt）
 多因子认证（MFA，可选）

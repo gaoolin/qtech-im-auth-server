@@ -14,5 +14,5 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface IUserDetailsService {
     @Transactional(readOnly = true)
-    UserDetails loadUserByEmployeeId(String employeeId) throws UsernameNotFoundException;
+    UserDetails loadUserByEmpId(String empId) throws UsernameNotFoundException;
 }

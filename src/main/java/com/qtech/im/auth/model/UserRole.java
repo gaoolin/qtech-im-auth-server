@@ -2,6 +2,7 @@ package com.qtech.im.auth.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+
 /**
  * author :  gaozhilin
  * email  :  gaoolin@gmail.com

@@ -2,7 +2,7 @@ package com.qtech.im.auth.security;
 
 import com.qtech.im.auth.model.Role;
 import com.qtech.im.auth.model.User;
-import com.qtech.im.auth.utils.UserStatus;
+import com.qtech.im.auth.utils.BizStatus;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -55,10 +55,10 @@ public class CustomUserDetails implements UserDetails {
     public static CustomUserDetails fromUser(User user) {
         return new CustomUserDetails(
                 user.getId(),
-                user.getEmployeeId(),
+                user.getEmpId(),
                 user.getUsername(),
-                user.getPasswordHash(),
-                user.getStatus() == UserStatus.ACTIVE,
+                user.getPwHash(),
+                user.getStatus() == BizStatus.ACTIVE,
                 user.getRoles()
         );
     }
