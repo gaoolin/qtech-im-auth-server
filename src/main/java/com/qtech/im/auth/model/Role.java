@@ -1,8 +1,7 @@
 package com.qtech.im.auth.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.HashSet;
@@ -27,9 +26,8 @@ import java.util.Set;
  * <p>
  * 通过 Lombok 自动生成 getter/setter，减少样板代码。
  */
-
-@EqualsAndHashCode(callSuper = true)
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "IM_AUTH_ROLE")
 public class Role extends BaseModel implements GrantedAuthority {
@@ -48,14 +46,10 @@ public class Role extends BaseModel implements GrantedAuthority {
     private String menuCheckStrictly;
     @Column(name = "DEPT_CHECK_STRICTLY")
     private String deptCheckStrictly;
-    @Column(name = "STATUS")
-    private String status;
-    @Column(name = "DEL_FLAG")
-    private String delFlag;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "IM_AUTH_ROLE_PERMISSION",
+            name = "IM_AUTH_ROLE_SYSTEM_PERMISSION",
             joinColumns = @JoinColumn(name = "ROLE_ID"),
             inverseJoinColumns = @JoinColumn(name = "PERM_ID")
     )

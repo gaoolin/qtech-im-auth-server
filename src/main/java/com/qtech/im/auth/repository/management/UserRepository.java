@@ -26,12 +26,6 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     // 根据用户名查询用户
     Optional<User> findByUsername(String username);
 
-    // 根据小组查询用户列表
-    List<User> findBySection(String section);
-
-    // 可以结合多个查询条件来做复杂查询
-    List<User> findByEmpIdOrUsernameOrSection(String empId, String username, String section);
-
     boolean existsByUsername(String username);
 
     boolean existsByEmpId(String empId);
@@ -43,6 +37,8 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     @Modifying
     @Transactional
-    @Query("UPDATE User u SET u.username = :username, u.pwHash = :pwHash, u.email = :email, u.section = :section WHERE u.empId = :empId")
+    @Query("UPDATE User u SET u.username = :username, u.pwHash = :pwHash, u.email = :email WHERE u.empId = :empId")
     int updateUserByEmpId(String empId, User user);
+
+    List<User> findByEmpIdOrUsername(String employeeId, String username);
 }

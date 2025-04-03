@@ -2,7 +2,7 @@ package com.qtech.im.auth.service.management;
 
 import com.qtech.im.auth.model.Permission;
 import com.qtech.im.auth.model.Role;
-import com.qtech.im.auth.model.RolePermission;
+import com.qtech.im.auth.model.RoleSystemPermission;
 
 import java.util.List;
 
@@ -14,11 +14,11 @@ import java.util.List;
  */
 
 public interface IRolePermissionService {
-    RolePermission assignPermissionToRole(Role role, Permission permission);
+    RoleSystemPermission assignPermissionToRole(Role role, Permission permission);
 
     void removeRolePermission(Role role, Permission permission);
 
-    List<RolePermission> findPermissionsByRoleId(Role role);
+    List<RoleSystemPermission> findPermissionsByRoleId(Role role);
 
-    List<RolePermission> findRolesByPermissionId(Permission permission);
+    List<RoleSystemPermission> findRolesByPermissionId(Permission permission);
 }

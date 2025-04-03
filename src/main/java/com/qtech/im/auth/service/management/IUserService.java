@@ -5,6 +5,7 @@ import com.qtech.im.auth.model.Role;
 import com.qtech.im.auth.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,9 +40,8 @@ public interface IUserService {
 
     Optional<User> findUserByUsername(String username);
 
-    List<User> findUsersBySection(String section);
-
-    List<User> searchUsers(String empId, String username, String section);
+    @Transactional(readOnly = true) // 只读事务，优化查询性能
+    List<User> searchUsers(String empId, String username);
 
     User createUser(User user);
 
@@ -57,7 +57,7 @@ public interface IUserService {
 
     Integer updateUserRoles(String empId, List<Long> roleIds);
 
-    Integer updateUserPerms(String empId, List<Long> permissionIds);
+    Integer updateUserPerms(String empId, List<Long> permIds);
 
     boolean authenticate(String empId, String password);
 

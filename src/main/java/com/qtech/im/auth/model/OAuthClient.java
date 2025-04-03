@@ -1,7 +1,13 @@
 package com.qtech.im.auth.model;
 
+import com.qtech.im.auth.utils.DelFlag;
+import com.qtech.im.auth.utils.DelFlagConverter;
+import com.qtech.im.auth.utils.Status;
+import com.qtech.im.auth.utils.StatusConverter;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -10,7 +16,7 @@ import java.time.LocalDateTime;
  * email  :  gaoolin@gmail.com
  * date   :  2025/03/18 10:06:33
  * desc   :
- *
+ * <p>
  * 字段说明
  * 字段	示例值	说明
  * client_id	client_a	客户端唯一标识
@@ -22,11 +28,11 @@ import java.time.LocalDateTime;
  * scopes	read,write	权限范围（逗号分隔）
  * created_at	SYSTIMESTAMP	创建时间
  */
-
+@Getter
+@Setter
 @Entity
 @Table(name = "IM_AUTH_OAUTH_CLIENT")
-@Data
-public class OAuthClient {
+public class OAuthClient extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -51,7 +57,4 @@ public class OAuthClient {
 
     @Column(length = 255)
     private String scopes;
-
-    @Column
-    private LocalDateTime createdAt;
 }

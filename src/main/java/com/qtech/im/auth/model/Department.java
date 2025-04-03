@@ -1,7 +1,13 @@
 package com.qtech.im.auth.model;
 
+import com.qtech.im.auth.utils.DelFlag;
+import com.qtech.im.auth.utils.DelFlagConverter;
+import com.qtech.im.auth.utils.Status;
+import com.qtech.im.auth.utils.StatusConverter;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * author :  gaozhilin
@@ -10,7 +16,8 @@ import lombok.Data;
  * desc   :
  */
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "IM_AUTH_DEPT")
 public class Department extends BaseModel {
@@ -31,8 +38,4 @@ public class Department extends BaseModel {
     private String email;
     @Column(name = "PHONE")
     private String phone;
-    @Column(name = "STATUS")
-    private String status;
-    @Column(name = "DEL_FLAG")
-    private String delFlag;
 }

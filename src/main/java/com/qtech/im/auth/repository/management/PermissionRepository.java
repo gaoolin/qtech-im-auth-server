@@ -1,8 +1,10 @@
 package com.qtech.im.auth.repository.management;
 
 import com.qtech.im.auth.model.Permission;
+import com.qtech.im.auth.model.System;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,10 +22,10 @@ public interface PermissionRepository extends JpaRepository<Permission, Long> {
     // @Query(value = "SELECT * FROM permission WHERE permissionName = :name", nativeQuery = true)
     // Optional<Permission> findByPermissionName(@Param("name") String permissionName);
 
-    Optional<Permission> findByPermNameAndSysNameAndAppName(String permName, String sysName, String appName);
+    Optional<Permission> findByPermNameAndSystemAndAppName(String permName, System system, String appName);
 
-    @Query(value = "SELECT * FROM permission WHERE empId = :empId AND sysName = :sysName", nativeQuery = true)
-    Optional<List<Permission>> findByEmployeeIdAndSystemName(String empId, String sysName);
+    @Query(value = "SELECT * FROM permission WHERE empId = :empId AND sysName = :system.sysName", nativeQuery = true)
+    Optional<List<Permission>> findByEmpIdAndSystem(@Param("empId") String empId, @Param("system") System system);
 
     // 根据权限名称查询权限
     Optional<Permission> findByPermName(String permName);
@@ -32,8 +34,9 @@ public interface PermissionRepository extends JpaRepository<Permission, Long> {
     List<Permission> findAll();
 
     // 根据系统名称查询权限
-    List<Permission> findBySysName(String systemName);
+    @Query(value = "SELECT * FROM permission WHERE sysName = :system.sysName", nativeQuery = true)
+    List<Permission> findBySystem(@Param("system") System system);
 
     // 根据应用名称查询权限
-    List<Permission> findByAppName(String applicationName);
+    List<Permission> findByAppName(String appName);
 }

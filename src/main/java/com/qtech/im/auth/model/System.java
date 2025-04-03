@@ -1,9 +1,11 @@
 package com.qtech.im.auth.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import lombok.Data;
+import com.qtech.im.auth.utils.DelFlag;
+import com.qtech.im.auth.utils.DelFlagConverter;
+import com.qtech.im.auth.utils.Status;
+import com.qtech.im.auth.utils.StatusConverter;
+import jakarta.persistence.*;
+import lombok.*;
 
 /**
  * author :  gaozhilin
@@ -12,7 +14,8 @@ import lombok.Data;
  * desc   :
  */
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "IM_AUTH_SYSTEM")
 public class System extends BaseModel {
@@ -21,14 +24,4 @@ public class System extends BaseModel {
     private Long id;
     @Column(name = "SYS_NAME")
     private String sysName;
-    @Column(name = "APP_NAME")
-    private String appName;
-    @Column(name = "RSRC_NAME")
-    private String rsrcName;
-    @Column(name = "ACTION_TYPE")
-    private String actionType;
-    @Column(name = "STATUS")
-    private String status;
-    @Column(name = "DEL_FLAG")
-    private String delFlag;
 }

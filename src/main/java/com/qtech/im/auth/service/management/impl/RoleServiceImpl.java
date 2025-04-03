@@ -34,7 +34,7 @@ public class RoleServiceImpl implements IRoleService {
     public Role updateRole(Long id, Role roleDetails) {
         Role role = roleRepository.findById(id).orElseThrow(() -> new RuntimeException("Role not found"));
         role.setRoleName(roleDetails.getRoleName());
-        role.setDescription(roleDetails.getDescription());
+        role.setRemark(roleDetails.getRemark());
         return roleRepository.save(role);
     }
 
@@ -75,7 +75,7 @@ public class RoleServiceImpl implements IRoleService {
                 return criteriaBuilder.or(predicates.toArray(new Predicate[0]));
             }, pageable);
         }
-       return roleRepository.findAll(pageable);
+        return roleRepository.findAll(pageable);
     }
 
     @Override

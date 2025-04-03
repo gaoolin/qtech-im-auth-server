@@ -2,7 +2,7 @@ package com.qtech.im.auth.repository.management;
 
 import com.qtech.im.auth.model.Role;
 import com.qtech.im.auth.model.User;
-import com.qtech.im.auth.model.UserRole;
+import com.qtech.im.auth.model.UserSystemRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -16,14 +16,14 @@ import java.util.List;
  */
 
 @Repository
-public interface UserRoleRepository extends JpaRepository<UserRole, Integer> {
-    List<UserRole> findByUser(User user);
+public interface UserSystemRoleRepository extends JpaRepository<UserSystemRole, Integer> {
+    List<UserSystemRole> findByUser(User user);
 
-    List<UserRole> findByRole(Role role);
+    List<UserSystemRole> findByRole(Role role);
 
     void deleteByUserAndRole(User user, Role role);
 
-    List<UserRole> findByUserEmpId(String empId);
+    List<UserSystemRole> findByUserEmpId(String empId);
     void deleteByUserEmpIdAndRoleId(String empId, Long roleId);
     void deleteByUserEmpId(String empId);
 }

@@ -1,8 +1,8 @@
 package com.qtech.im.auth.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 
 /**
@@ -12,8 +12,8 @@ import org.springframework.security.core.GrantedAuthority;
  * desc   :  权限实体
  */
 
-@EqualsAndHashCode(callSuper = true)
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "IM_AUTH_PERMISSION")
 public class Permission extends BaseModel implements GrantedAuthority {
@@ -21,18 +21,21 @@ public class Permission extends BaseModel implements GrantedAuthority {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "PERM_NAME", length = 50)
+    @Column(name = "PERM_NAME")
     private String permName;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "SYS_ID", referencedColumnName = "ID")
     private System system;
 
-    @Column(name = "STATUS", length = 1)
-    private String status;
+    @Column(name = "APP_NAME")
+    private String appName;
 
-    @Column(name = "DEL_FLAG", length = 1)
-    private String delFlag;
+    @Column(name = "RSRC_NAME")
+    private String rsrcName;
+
+    @Column(name = "ACTION_TYPE")
+    private String actionType;
 
     @Override
     public String getAuthority() {

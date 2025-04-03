@@ -33,14 +33,14 @@ public class UserServiceImpl implements IUserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PermissionRepository permissionRepository;
-    private final UserRoleRepository userRoleRepository;
+    private final UserSystemRoleRepository userSystemRoleRepository;
     private final UserPermissionRepository userPermissionRepository;
 
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PermissionRepository permissionRepository, UserRoleRepository userRoleRepository, UserPermissionRepository userPermissionRepository) {
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PermissionRepository permissionRepository, UserSystemRoleRepository userSystemRoleRepository, UserPermissionRepository userPermissionRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.permissionRepository = permissionRepository;
-        this.userRoleRepository = userRoleRepository;
+        this.userSystemRoleRepository = userSystemRoleRepository;
         this.userPermissionRepository = userPermissionRepository;
     }
 
@@ -58,16 +58,16 @@ public class UserServiceImpl implements IUserService {
      */
     @Override
     @Transactional(readOnly = true) // 只读事务，优化查询性能
-    public Set<Permission> getUserPerms(String employeeId) {
-        return userRepository.findByEmpId(employeeId).map(user -> user.getRoles().stream().flatMap(role -> role.getPermissions().stream()).collect(Collectors.toSet())).orElse(Collections.emptySet());
+    public Set<Permission> getUserPerms(String empId) {
+        return userRepository.findByEmpId(empId).map(user -> user.getRoles().stream().flatMap(role -> role.getPermissions().stream()).collect(Collectors.toSet())).orElse(Collections.emptySet());
     }
 
     /**
      * 为用户添加角色
      */
     @Override
-    public void addRoleToUser(String employeeId, Long roleId) {
-        User user = userRepository.findByEmpId(employeeId).orElseThrow(() -> new BusinessException(404, "用户不存在"));
+    public void addRoleToUser(String empId, Long roleId) {
+        User user = userRepository.findByEmpId(empId).orElseThrow(() -> new BusinessException(404, "用户不存在"));
         Role role = roleRepository.findById(roleId).orElseThrow(() -> new BusinessException(404, "角色不存在"));
 
         if (!user.getRoles().contains(role)) {
@@ -81,7 +81,7 @@ public class UserServiceImpl implements IUserService {
      */
     @Override
     public void removeRoleFromUser(String empId, Long roleId) {
-        userRoleRepository.deleteByUserEmpIdAndRoleId(empId, roleId);
+        userSystemRoleRepository.deleteByUserEmpIdAndRoleId(empId, roleId);
     }
 
     /**
@@ -103,7 +103,7 @@ public class UserServiceImpl implements IUserService {
      */
     @Override
     public void removePermFromUser(String empId, Long permId) {
-        userPermissionRepository.deleteByUserEmpIdAndPermId(empId, permId);
+        userPermissionRepository.deleteByUserEmpIdAndPermission(empId, permId);
     }
 
     /**
@@ -111,7 +111,7 @@ public class UserServiceImpl implements IUserService {
      */
     @Override
     public void removeAllRolesFromUser(String empId) {
-        userRoleRepository.deleteByUserEmpId(empId);
+        userSystemRoleRepository.deleteByUserEmpId(empId);
     }
 
     /**
@@ -124,8 +124,8 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     @Transactional(readOnly = true) // 只读事务，优化查询性能
-    public Optional<User> findUserByEmpId(String employeeId) {
-        return userRepository.findByEmpId(employeeId);
+    public Optional<User> findUserByEmpId(String empId) {
+        return userRepository.findByEmpId(empId);
     }
 
     @Override
@@ -136,20 +136,14 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     @Transactional(readOnly = true) // 只读事务，优化查询性能
-    public List<User> findUsersBySection(String section) {
-        return userRepository.findBySection(section);
-    }
-
-    @Override
-    @Transactional(readOnly = true) // 只读事务，优化查询性能
     public List<User> findAllUsers() {
         return userRepository.findAllUsers();
     }
 
     @Override
     @Transactional(readOnly = true) // 只读事务，优化查询性能
-    public List<User> searchUsers(String employeeId, String username, String section) {
-        return userRepository.findByEmpIdOrUsernameOrSection(employeeId, username, section);
+    public List<User> searchUsers(String empId, String username) {
+        return userRepository.findByEmpIdOrUsername(empId, username);
     }
 
     @Override
@@ -167,17 +161,17 @@ public class UserServiceImpl implements IUserService {
         authUser.setDepartment(user.getDepartment());
         authUser.setGender(user.getGender());
         authUser.setEmail(user.getEmail());
-        authUser.setUpdatedAt(LocalDateTime.now());
+        authUser.setUpdateTime(LocalDateTime.now());
         return userRepository.save(authUser);
     }
 
     @Override
-    public Integer updateUserByEmpId(String employeeId, User user) {
-        return userRepository.updateUserByEmpId(employeeId, user);
+    public Integer updateUserByEmpId(String empId, User user) {
+        return userRepository.updateUserByEmpId(empId, user);
     }
 
     @Override
-    public Integer updateUserRoles(String employeeId, List<Long> roleIds) {
+    public Integer updateUserRoles(String empId, List<Long> roleIds) {
         return null;
     }
 
@@ -197,9 +191,9 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public boolean authenticate(String employeeId, String password) {
-        if (userRepository.existsByEmpId(employeeId)) {
-            Optional<User> byEmployeeId = userRepository.findByEmpId(employeeId);
+    public boolean authenticate(String empId, String password) {
+        if (userRepository.existsByEmpId(empId)) {
+            Optional<User> byEmployeeId = userRepository.findByEmpId(empId);
             if (byEmployeeId.isPresent()) {
                 User user = byEmployeeId.get();
                 return PasswordEncryptor.matches(password, user.getPwHash());
@@ -210,12 +204,12 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public Page<User> findUsersWithConditions(String employeeId, String username, Pageable pageable) {
+    public Page<User> findUsersWithConditions(String empId, String username, Pageable pageable) {
         return userRepository.findAll((root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if (employeeId != null && !employeeId.isEmpty()) {
-                predicates.add(criteriaBuilder.like(root.get("employeeId"), "%" + employeeId + "%"));
+            if (empId != null && !empId.isEmpty()) {
+                predicates.add(criteriaBuilder.like(root.get("employeeId"), "%" + empId + "%"));
             }
             if (username != null && !username.isEmpty()) {
                 predicates.add(criteriaBuilder.like(root.get("username"), "%" + username + "%"));

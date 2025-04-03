@@ -2,8 +2,8 @@ package com.qtech.im.auth.service.management.impl;
 
 import com.qtech.im.auth.model.Permission;
 import com.qtech.im.auth.model.Role;
-import com.qtech.im.auth.model.RolePermission;
-import com.qtech.im.auth.repository.management.RolePermissionRepository;
+import com.qtech.im.auth.model.RoleSystemPermission;
+import com.qtech.im.auth.repository.management.RoleSystemPermissionRepository;
 import com.qtech.im.auth.service.management.IRolePermissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,28 +21,28 @@ import java.util.List;
 public class RolePermissionServiceImpl implements IRolePermissionService {
 
     @Autowired
-    private RolePermissionRepository rolePermissionRepository;
+    private RoleSystemPermissionRepository roleSystemPermissionRepository;
 
     @Override
-    public RolePermission assignPermissionToRole(Role role, Permission permission) {
-        RolePermission rolePermission = new RolePermission();
-        rolePermission.setRole(role);
-        rolePermission.setPermission(permission);
-        return rolePermissionRepository.save(rolePermission);
+    public RoleSystemPermission assignPermissionToRole(Role role, Permission permission) {
+        RoleSystemPermission roleSystemPermission = new RoleSystemPermission();
+        roleSystemPermission.setRole(role);
+        roleSystemPermission.setPermission(permission);
+        return roleSystemPermissionRepository.save(roleSystemPermission);
     }
 
     @Override
     public void removeRolePermission(Role role, Permission permission) {
-        rolePermissionRepository.deleteByRoleIdAndPermissionId(role, permission);
+        roleSystemPermissionRepository.deleteByRoleIdAndPermissionId(role, permission);
     }
 
     @Override
-    public List<RolePermission> findPermissionsByRoleId(Role role) {
-        return rolePermissionRepository.findByRoleId(role);
+    public List<RoleSystemPermission> findPermissionsByRoleId(Role role) {
+        return roleSystemPermissionRepository.findByRoleId(role);
     }
 
     @Override
-    public List<RolePermission> findRolesByPermissionId(Permission permission) {
-        return rolePermissionRepository.findByPermissionId(permission);
+    public List<RoleSystemPermission> findRolesByPermissionId(Permission permission) {
+        return roleSystemPermissionRepository.findByPermissionId(permission);
     }
 }

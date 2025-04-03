@@ -2,7 +2,7 @@ package com.qtech.im.auth.service.management;
 
 import com.qtech.im.auth.model.Role;
 import com.qtech.im.auth.model.User;
-import com.qtech.im.auth.model.UserRole;
+import com.qtech.im.auth.model.UserSystemRole;
 
 import java.util.List;
 
@@ -14,13 +14,13 @@ import java.util.List;
  */
 
 public interface IUserRoleService {
-    // UserRole assignRoleToUser(Integer userId, Integer roleId);
+    // UserSystemRole assignRoleToUser(Integer userId, Integer roleId);
     // void removeUserRole(Integer userId, Integer roleId);
-    // List<UserRole> findRolesByUserId(Integer userId);
-    // List<UserRole> findUsersByRoleId(Integer roleId);
+    // List<UserSystemRole> findRolesByUserId(Integer userId);
+    // List<UserSystemRole> findUsersByRoleId(Integer roleId);
 
-    UserRole assignRoleToUser(User user, Role role);
+    UserSystemRole assignRoleToUser(User user, Role role);
     void removeUserRole(User user, Role role);
-    List<UserRole> findRolesByUser(User user);
-    List<UserRole> findUsersByRole(Role role);
+    List<UserSystemRole> findRolesByUser(User user);
+    List<UserSystemRole> findUsersByRole(Role role);
 }

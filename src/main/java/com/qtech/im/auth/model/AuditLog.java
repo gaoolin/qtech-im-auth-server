@@ -2,6 +2,8 @@ package com.qtech.im.auth.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -11,10 +13,10 @@ import java.time.LocalDateTime;
  * date   :  2025/03/18 10:08:06
  * desc   :
  */
-
+@Getter
+@Setter
 @Entity
 @Table(name = "IM_AUTH_AUDIT_LOG")
-@Data
 public class AuditLog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

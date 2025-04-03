@@ -5,7 +5,7 @@ import com.qtech.im.auth.common.Result;
 import com.qtech.im.auth.common.ResultCode;
 import com.qtech.im.auth.model.User;
 import com.qtech.im.auth.service.management.IUserService;
-import com.qtech.im.auth.utils.BizStatus;
+import com.qtech.im.auth.utils.Status;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
@@ -70,8 +70,8 @@ public class AuthUsersController {
             String password = user.getPwHash();
             String hashPassword = PasswordEncryptor.hashPassword(password);
             user.setPwHash(hashPassword);
-            user.setStatus(BizStatus.ACTIVE);
-            user.setCreatedAt(LocalDateTime.now());
+            user.setStatus(Status.ACTIVE);
+            user.setCreateTime(LocalDateTime.now());
             userService.createUser(user);
             return Result.success();
         } catch (Exception e) {
@@ -83,7 +83,7 @@ public class AuthUsersController {
     @ResponseBody
     private Result<?> updateUser(@PathVariable String id, @RequestBody User user) {
         try {
-            user.setUpdatedAt(LocalDateTime.now());
+            user.setUpdateTime(LocalDateTime.now());
             userService.updateUser(Long.parseLong(id), user);
             return Result.success();
         } catch (Exception e) {
