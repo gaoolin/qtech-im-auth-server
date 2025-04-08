@@ -18,7 +18,6 @@ class PasswordEncryptorTest {
     @Autowired
     private MockMvc mockMvc;
 
-
     @Test
     void encodePassword() {
         System.out.println(PasswordEncryptor.hashPassword("admin123"));

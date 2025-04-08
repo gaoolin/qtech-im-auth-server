@@ -23,6 +23,9 @@ VALUES (0, '0', '生产部', 1, '张三', 'zhangsan@example.com', '13800138000',
 INSERT INTO im_auth_dept (parent_id, ancestors, dept_name, order_num, leader, email, phone, status, created_by, updated_by, description)
 VALUES (0, '0', '研发部', 2, '李四', 'lisi@example.com', '13800138001', '0', 'admin', 'admin', '负责产品研发');
 
+INSERT INTO im_auth_dept (dept_name, leader, email, phone, status, del_flag, created_by, updated_by, remark)
+VALUES ('丘钛集团', '张三', 'zhangsan@example.com', '+1234567890', '0', '0', 'admin', 'admin', '丘钛集团描述');
+
 -- 插入用户信息
 INSERT INTO im_auth_user (emp_id, username, nickname, pw_hash, gender, dept_id, avatar, email, phone, user_type, status, created_by, updated_by, description)
 VALUES ('001', 'zhangsan', '张三', 'hashed_password', '1', 1, 'avatar1.jpg', 'zhangsan@example.com', '13800138000', '0', '0', 'admin', 'admin', '生产部经理');

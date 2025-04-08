@@ -68,4 +68,4 @@ logging:
   level: # 日志级别配置
     root: info
     com.qtech.im: debug
-    org.hibernate.SQL: debug
+    org.hibernate: debug

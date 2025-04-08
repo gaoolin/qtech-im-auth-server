@@ -63,6 +63,9 @@ public class SecurityConfig {
                                 "/auth/home",
                                 "/auth/users",
                                 "/auth/roles",
+                                "/auth/systems",
+                                "/auth/permissions",
+                                "/auth/depts",
                                 "/static/**",    // 允许访问静态资源
                                 "/resources/**",
                                 "/public/**",
@@ -70,11 +73,9 @@ public class SecurityConfig {
                                 "/css/**",
                                 "/js/**",
                                 "/images/**")  // 允许访问资源目录 允许特定接口 允许公开访问登录接口
-
                         .permitAll().anyRequest().authenticated()  // 其他接口需要认证
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class); // 添加 JWT 认证过滤器;
-
 
         return http.build();
     }

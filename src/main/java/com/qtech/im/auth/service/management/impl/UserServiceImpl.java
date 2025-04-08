@@ -4,10 +4,7 @@ import com.qtech.im.auth.common.PasswordEncryptor;
 import com.qtech.im.auth.exception.authentication.InvalidCredentialsException;
 import com.qtech.im.auth.exception.biz.BusinessException;
 import com.qtech.im.auth.exception.biz.UserNotFoundException;
-import com.qtech.im.auth.model.Permission;
-import com.qtech.im.auth.model.Role;
-import com.qtech.im.auth.model.User;
-import com.qtech.im.auth.model.UserPermission;
+import com.qtech.im.auth.model.*;
 import com.qtech.im.auth.repository.management.*;
 import com.qtech.im.auth.service.management.IUserService;
 import jakarta.persistence.criteria.Predicate;
@@ -32,13 +29,15 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements IUserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final DepartmentRepository departmentRepository;
     private final PermissionRepository permissionRepository;
     private final UserSystemRoleRepository userSystemRoleRepository;
     private final UserPermissionRepository userPermissionRepository;
 
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PermissionRepository permissionRepository, UserSystemRoleRepository userSystemRoleRepository, UserPermissionRepository userPermissionRepository) {
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, DepartmentRepository departmentRepository, PermissionRepository permissionRepository, UserSystemRoleRepository userSystemRoleRepository, UserPermissionRepository userPermissionRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.departmentRepository = departmentRepository;
         this.permissionRepository = permissionRepository;
         this.userSystemRoleRepository = userSystemRoleRepository;
         this.userPermissionRepository = userPermissionRepository;
@@ -158,7 +157,11 @@ public class UserServiceImpl implements IUserService {
     public User updateUser(Long id, User user) {
         User authUser = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
         authUser.setUsername(user.getUsername());
-        authUser.setDepartment(user.getDepartment());
+
+        departmentRepository.findByDeptName(user.getDepartment().getDeptName()).ifPresentOrElse(authUser::setDepartment, () -> {
+            throw new BusinessException(400, "部门不存在");
+        });
+
         authUser.setGender(user.getGender());
         authUser.setEmail(user.getEmail());
         authUser.setUpdateTime(LocalDateTime.now());
@@ -209,7 +212,7 @@ public class UserServiceImpl implements IUserService {
             List<Predicate> predicates = new ArrayList<>();
 
             if (empId != null && !empId.isEmpty()) {
-                predicates.add(criteriaBuilder.like(root.get("employeeId"), "%" + empId + "%"));
+                predicates.add(criteriaBuilder.like(root.get("empId"), "%" + empId + "%"));
             }
             if (username != null && !username.isEmpty()) {
                 predicates.add(criteriaBuilder.like(root.get("username"), "%" + username + "%"));

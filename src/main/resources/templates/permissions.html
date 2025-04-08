@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="zh">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>认证中心 - 首页</title>
+    <title>权限管理 - 认证中心</title>
     <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
     <link href="/css/bootstrap.min.css" rel="stylesheet">
     <script src="/js/axios.min.js"></script>
@@ -20,7 +20,6 @@
         }
     </style>
 </head>
-<body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container-fluid">
         <a class="navbar-brand" href="#">认证中心</a>
@@ -30,7 +29,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
-                    <a class="nav-link active" href="/auth/home">首页</a>
+                    <a class="nav-link" href="/auth/home">首页</a>
                 </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownUsers" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -60,7 +59,7 @@
                     </ul>
                 </li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownPermissions" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle active" href="#" id="navbarDropdownPermissions" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         权限管理
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdownPermissions">
@@ -85,57 +84,8 @@
     </div>
 </nav>
 
-<div class="container mt-4">
-    <h2>欢迎进入认证中心，<span th:text="${username}">管理员</span>！</h2>
-    <div class="row mt-4">
-        <div class="col-md-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">用户管理</h5>
-                    <p class="card-text">管理系统用户，支持新增、修改、删除和查询。</p>
-                    <a href="/auth/users" class="btn btn-primary">进入</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">角色管理</h5>
-                    <p class="card-text">管理系统角色及其权限分配。</p>
-                    <a href="/auth/roles" class="btn btn-primary">进入</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">权限管理</h5>
-                    <p class="card-text">查看和维护系统权限树及分配关系。</p>
-                    <a href="/auth/permissions" class="btn btn-primary">进入</a>
-                </div>
-            </div>
-        </div>
-    </div>
+<body>
 
-    <div class="mt-5">
-        <h4>快速接口测试</h4>
-        <div class="card p-4">
-            <div class="mb-3">
-                <label for="tokenInput" class="form-label">JWT Token</label>
-                <textarea class="form-control" id="tokenInput" rows="2" readonly th:text="${access_token}"></textarea>
-            </div>
-            <div class="mb-3">
-                <label for="apiUrl" class="form-label">接口地址</label>
-                <input type="text" class="form-control" id="apiUrl" placeholder="例如：http://localhost:8077/test">
-            </div>
-            <button class="btn btn-success" onclick="callApi()">调用接口</button>
-            <div class="mt-4">
-                <h6>返回结果：</h6>
-                <pre id="result"></pre>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Toast Container -->
 <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11">
@@ -151,31 +101,5 @@
         </div>
     </div>
 </div>
-<script th:inline="javascript">
-    /*<![CDATA[*/
-    window.accessToken = /*[[${access_token}]]*/ '';
-
-    /*]]>*/
-
-    function callApi() {
-        const token = document.getElementById('tokenInput').value.trim();
-        const apiUrl = document.getElementById('apiUrl').value.trim();
-
-        if (!token || !apiUrl) {
-            alert('请填写接口地址，Token 已经自动填充');
-            return;
-        }
-
-        request.get(apiUrl, {
-            headers: {'Authorization': 'Bearer ' + token}
-        })
-            .then(response => {
-                document.getElementById('result').textContent = JSON.stringify(response.data, null, 2);
-            })
-            .catch(error => {
-                document.getElementById('result').textContent = error.response ? JSON.stringify(error.response.data, null, 2) : error.message;
-            });
-    }
-</script>
 </body>
 </html>

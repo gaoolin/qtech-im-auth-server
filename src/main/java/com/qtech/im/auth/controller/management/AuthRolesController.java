@@ -30,16 +30,6 @@ public class AuthRolesController {
     @Autowired
     private IRoleService roleService;
 
-    @GetMapping
-    public String rolePage(HttpServletRequest request, Model model) {
-        HttpSession session = request.getSession();
-        Object tokenObj = session.getAttribute("access_token");
-        String accessToken = tokenObj != null ? tokenObj.toString() : "";
-        System.out.println(accessToken);
-        model.addAttribute("access_token", accessToken);
-        return "roles";
-    }
-
     @GetMapping("/list")
     @ResponseBody
     public Page<Role> getRoleInfo(

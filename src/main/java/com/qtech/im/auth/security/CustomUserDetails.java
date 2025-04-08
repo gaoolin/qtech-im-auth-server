@@ -2,7 +2,6 @@ package com.qtech.im.auth.security;
 
 import com.qtech.im.auth.model.Role;
 import com.qtech.im.auth.model.User;
-import com.qtech.im.auth.utils.BizStatus;
 import com.qtech.im.auth.utils.Status;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;

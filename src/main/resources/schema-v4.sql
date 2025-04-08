@@ -150,7 +150,7 @@ CREATE INDEX idx_im_auth_department_status ON im_auth_dept (status);
 CREATE INDEX idx_im_auth_department_del_flag ON im_auth_dept (del_flag);
 
 -- 部门表序列
-CREATE SEQUENCE seq_im_auth_dept START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+CREATE SEQUENCE seq_im_auth_dept START WITH 100 INCREMENT BY 1 NOCACHE NOCYCLE;
 
 -- 部门表触发器，自动填充 ID、create_time 和 update_time并更新 update_time
 CREATE
@@ -793,22 +793,22 @@ END;
 -- **************************************
 CREATE TABLE im_auth_system_config
 (
-    CONFIG_ID    NUMBER(20, 0) NOT NULL,
-    SYS_ID       NUMBER(20, 0) NOT NULL,
-    CONFIG_NAME  VARCHAR2(100) DEFAULT '',
-    CONFIG_KEY   VARCHAR2(100) DEFAULT '',
-    CONFIG_VALUE VARCHAR2(100) DEFAULT '',
-    CONFIG_TYPE  CHAR(1)       DEFAULT 'N', -- 系统内置（Y是 N否）
-    CREATE_BY    VARCHAR2(64)  DEFAULT '',
-    CREATE_TIME  DATE,
-    UPDATE_BY    VARCHAR2(64)  DEFAULT '',
-    UPDATE_TIME  DATE,
-    REMARK       VARCHAR2(500) DEFAULT null,
-    CONSTRAINT pk_im_auth_system_config PRIMARY KEY (CONFIG_ID),
-    FOREIGN KEY (SYS_ID) REFERENCES im_auth_system (ID) ON DELETE CASCADE
+    id           NUMBER(20, 0) NOT NULL,
+    sys_id       NUMBER(20, 0) NOT NULL,
+    config_name  VARCHAR2(100) DEFAULT '',
+    config_key   VARCHAR2(100) DEFAULT '',
+    config_value VARCHAR2(100) DEFAULT '',
+    config_type  CHAR(1)       DEFAULT 'N', -- 系统内置（Y是 N否）
+    create_by    VARCHAR2(64)  DEFAULT '',
+    create_time  TIMESTAMP DEFAULT SYSTIMESTAMP,
+    update_by    VARCHAR2(64)  DEFAULT '',
+    update_time  TIMESTAMP DEFAULT SYSTIMESTAMP,
+    remark       VARCHAR2(500) DEFAULT null,
+    CONSTRAINT pk_im_auth_system_config PRIMARY KEY (id),
+    FOREIGN KEY (sys_id) REFERENCES im_auth_system (id) ON DELETE CASCADE
 );
 -- 系统配置索引
-CREATE INDEX idx_im_auth_system_config_config_key ON im_auth_system_config (CONFIG_KEY);
+CREATE INDEX idx_im_auth_system_config_config_key ON im_auth_system_config (config_key);
 
 -- 系统配置序列
 CREATE SEQUENCE seq_im_auth_system_config START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
@@ -822,18 +822,20 @@ CREATE OR REPLACE TRIGGER trg_im_auth_system_config
 BEGIN
     -- 插入时生成主键
     IF
-        INSERTING AND :NEW.CONFIG_ID IS NULL THEN
-        :NEW.CONFIG_ID := seq_im_auth_system_config.NEXTVAL;
+        INSERTING AND :NEW.id IS NULL THEN
+        :NEW.id := seq_im_auth_system_config.NEXTVAL;
     END IF;
 
     -- 插入时设置 create_time
     IF
         INSERTING THEN
+        :NEW.create_time := CURRENT_TIMESTAMP;
 
     END IF;
+
     -- 插入、更新时设置 update_time
     IF (INSERTING OR UPDATING) THEN
-        :NEW.UPDATE_TIME := SYSTIMESTAMP;
+        :NEW.update_time := SYSTIMESTAMP;
     END IF;
 END;
 /

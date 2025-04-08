@@ -5,19 +5,14 @@ import com.qtech.im.auth.common.Result;
 import com.qtech.im.auth.common.ResultCode;
 import com.qtech.im.auth.dto.GenerateUserTokenRequest;
 import com.qtech.im.auth.dto.RefreshTokenRequest;
-import com.qtech.im.auth.model.User;
 import com.qtech.im.auth.service.management.IUserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * author :  gaozhilin
@@ -46,7 +41,11 @@ public class AuthCenterController {
     }
 
     @PostMapping("/login")
-    public String doLogin(@RequestParam String username, @RequestParam String password, @RequestParam String systemName, @RequestParam String clientId, HttpServletRequest request) {
+    public String doLogin(@RequestParam String username,
+                          @RequestParam String password,
+                          @RequestParam String systemName,
+                          @RequestParam String clientId,
+                          HttpServletRequest request) {
         GenerateUserTokenRequest generateUserTokenRequest = new GenerateUserTokenRequest();
         generateUserTokenRequest.setEmployeeId(username);
         generateUserTokenRequest.setSystemName(systemName);
@@ -67,18 +66,38 @@ public class AuthCenterController {
 
     @GetMapping("/home")
     public String homePage(HttpServletRequest request, Model model) {
-        String token = (String) request.getSession().getAttribute("access_token");
-        model.addAttribute("access_token", token);
-
-        if (token != null && jwtTokenProvider.validateToken(token)) {
-            // 从 token 中解析用户名
-            String employeeId = jwtTokenProvider.getEmployeeIdFromToken(token);
-            model.addAttribute("username", employeeId);
-        } else {
-            model.addAttribute("username", "访客");
-        }
-
+        setToken(request, model);
         return "home";
+    }
+
+    @GetMapping("/users")
+    private String userPage(HttpServletRequest request, Model model) {
+        setToken(request, model);
+        return "users";
+    }
+
+    @GetMapping("/roles")
+    private String rolePage(HttpServletRequest request, Model model) {
+        setToken(request, model);
+        return "roles";
+    }
+
+    @GetMapping("/systems")
+    private String systemPage(HttpServletRequest request, Model model) {
+        setToken(request, model);
+        return "systems";
+    }
+
+    @GetMapping("/permissions")
+    private String permissionPage(HttpServletRequest request, Model model) {
+        setToken(request, model);
+        return "permissions";
+    }
+
+    @GetMapping("/depts")
+    private String deptPage(HttpServletRequest request, Model model) {
+        setToken(request, model);
+        return "depts";
     }
 
     @PostMapping("/refresh")
@@ -127,5 +146,18 @@ public class AuthCenterController {
     @ResponseBody
     public String testApi() {
         return "接口调用成功，已通过认证！";
+    }
+
+    private void setToken(HttpServletRequest request, Model model) {
+        String token = (String) request.getSession().getAttribute("access_token");
+        model.addAttribute("access_token", token);
+
+        if (token != null && jwtTokenProvider.validateToken(token)) {
+            // 从 token 中解析用户名
+            String employeeId = jwtTokenProvider.getEmployeeIdFromToken(token);
+            model.addAttribute("username", employeeId);
+        } else {
+            model.addAttribute("username", "访客");
+        }
     }
 }

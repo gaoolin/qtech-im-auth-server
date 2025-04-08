@@ -1,12 +1,13 @@
 package com.qtech.im.auth.model;
 
-import com.qtech.im.auth.utils.*;
+import com.qtech.im.auth.utils.Gender;
+import com.qtech.im.auth.utils.GenderConverter;
+import com.qtech.im.auth.utils.UserType;
+import com.qtech.im.auth.utils.UserTypeConverter;
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -39,7 +40,7 @@ public class User extends BaseModel {
     @Convert(converter = GenderConverter.class)
     @Column(name = "GENDER")
     private Gender gender;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "DEPT_ID", referencedColumnName = "ID")
     private Department department;
     @Column(name = "AVATAR")
@@ -58,5 +59,4 @@ public class User extends BaseModel {
             inverseJoinColumns = @JoinColumn(name = "ROLE_ID")
     )
     private Set<Role> roles = new HashSet<>();
-
 }

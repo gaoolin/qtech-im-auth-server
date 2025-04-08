@@ -4,17 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>角色管理 - 认证中心</title>
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="/css/bootstrap.min.css"/>
     <script src="/js/axios.min.js"></script>
     <script src="/js/jquery-3.6.0.min.js"></script>
     <script src="/js/bootstrap.bundle.min.js"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}"/>
     <script src="/js/request.js"></script>
+    <script src="/js/common.js"></script>
     <style>
-        #toastContainer {
+        .toast-container {
             position: fixed;
-            top: 10px;
-            right: 10px;
+            top: 20px;
+            right: 20px;
             z-index: 9999;
         }
     </style>
@@ -28,15 +30,62 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link" href="/auth/home">首页</a></li>
-                <li class="nav-item"><a class="nav-link" href="/auth/users">用户管理</a></li>
-                <li class="nav-item"><a class="nav-link active" href="/auth/roles">角色管理</a></li>
-                <li class="nav-item"><a class="nav-link" href="/auth/permissions">权限管理</a></li>
-                <li class="nav-item"><a class="nav-link" href="/auth/logout">退出登录</a></li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/auth/home">首页</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownUsers" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        用户管理
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownUsers">
+                        <li><a class="dropdown-item" href="/auth/users">用户列表</a></li>
+                        <li><a class="dropdown-item" href="/auth/user-groups">用户组</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle active" href="#" id="navbarDropdownRoles" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        角色管理
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownRoles">
+                        <li><a class="dropdown-item" href="/auth/roles">角色列表</a></li>
+                        <li><a class="dropdown-item" href="/auth/role-permissions">角色权限</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownSystems" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        系统管理
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownSystems">
+                        <li><a class="dropdown-item" href="/auth/systems">系统列表</a></li>
+                        <li><a class="dropdown-item" href="/auth/system-config">系统配置</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownPermissions" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        权限管理
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownPermissions">
+                        <li><a class="dropdown-item" href="/auth/permissions">权限列表</a></li>
+                        <li><a class="dropdown-item" href="/auth/permission-groups">权限组</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownDepts" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        部门管理
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownDepts">
+                        <li><a class="dropdown-item" href="/auth/depts">部门列表</a></li>
+                        <li><a class="dropdown-item" href="/auth/dept-users">部门用户</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/auth/logout" onclick="showLogoutConfirm(); return false;">退出登录</a>
+                </li>
             </ul>
         </div>
     </div>
 </nav>
+
 <div class="container mt-5">
     <h2>角色管理</h2>
     <div class="d-flex mb-3">
@@ -96,31 +145,27 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <footer class="text-center text-muted mt-5 mb-3">QTECH 智能制造认证中心 © 2025</footer>
+<!-- Toast Container -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="logoutToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">确认退出</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            确定要退出登录吗？
+            <button type="button" class="btn btn-primary ms-2" onclick="confirmLogout()">确定</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="toast">取消</button>
+        </div>
+    </div>
+</div>
 </body>
 
 <!-- 复用 toast 通知 -->
 <script th:inline="javascript">
     /*<![CDATA[*/
     window.accessToken = /*[[${access_token}]]*/ '';
-
     /*]]>*/
-
-    function showToast(message, type = 'success') {
-        const toastHtml = `
-        <div class="toast align-items-center text-bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body">${message}</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-        </div>`;
-
-        $('#toastContainer').append(toastHtml);
-        const toastEl = new bootstrap.Toast($('#toastContainer .toast').last()[0]);
-        toastEl.show();
-        setTimeout(() => {
-            $('#toastContainer .toast').first().remove();
-        }, 5000);
-    }
 
     let currentPage = 0;
     let pageSize = 10;
@@ -289,4 +334,5 @@
         </div>
     </div>
 </div>
+
 </html>

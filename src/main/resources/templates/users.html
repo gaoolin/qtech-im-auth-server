@@ -1,14 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>用户管理 - 认证中心</title>
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
     <link href="/css/bootstrap.min.css" rel="stylesheet">
     <script src="/js/axios.min.js"></script>
     <script src="/js/jquery-3.6.0.min.js"></script>
     <script src="/js/bootstrap.bundle.min.js"></script>
     <script src="/js/request.js"></script>
+    <script src="/js/common.js"></script>
     <style>
         .toast-container {
             position: fixed;
@@ -27,11 +29,57 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link" href="/auth/home">首页</a></li>
-                <li class="nav-item"><a class="nav-link active" href="/auth/users">用户管理</a></li>
-                <li class="nav-item"><a class="nav-link" href="/auth/roles">角色管理</a></li>
-                <li class="nav-item"><a class="nav-link" href="/auth/permissions">权限管理</a></li>
-                <li class="nav-item"><a class="nav-link" href="/auth/logout">退出登录</a></li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/auth/home">首页</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle active" href="#" id="navbarDropdownUsers" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        用户管理
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownUsers">
+                        <li><a class="dropdown-item" href="/auth/users">用户列表</a></li>
+                        <li><a class="dropdown-item" href="/auth/user-groups">用户组</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownRoles" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        角色管理
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownRoles">
+                        <li><a class="dropdown-item" href="/auth/roles">角色列表</a></li>
+                        <li><a class="dropdown-item" href="/auth/role-permissions">角色权限</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownSystems" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        系统管理
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownSystems">
+                        <li><a class="dropdown-item" href="/auth/systems">系统列表</a></li>
+                        <li><a class="dropdown-item" href="/auth/system-config">系统配置</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownPermissions" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        权限管理
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownPermissions">
+                        <li><a class="dropdown-item" href="/auth/permissions">权限列表</a></li>
+                        <li><a class="dropdown-item" href="/auth/permission-groups">权限组</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownDepts" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        部门管理
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownDepts">
+                        <li><a class="dropdown-item" href="/auth/depts">部门列表</a></li>
+                        <li><a class="dropdown-item" href="/auth/dept-users">部门用户</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/auth/logout" onclick="showLogoutConfirm(); return false;">退出登录</a>
+                </li>
             </ul>
         </div>
     </div>
@@ -112,36 +160,80 @@
         </div>
     </div>
 </div>
-
-<div class="toast-container" id="toastContainer"></div>
+<!-- 编辑用户模态框 -->
+<div class="modal fade" id="editUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">编辑用户</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editUserId">
+                <div class="mb-3">
+                    <label class="form-label">工号</label>
+                    <input type="text" class="form-control" id="editEmpId">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">用户名</label>
+                    <input type="text" class="form-control" id="editUsername">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">部门</label>
+                    <input type="text" class="form-control" id="editDepartment" readonly>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">性别</label>
+                    <select class="form-select" id="editGender">
+                        <option value="男">男</option>
+                        <option value="女">女</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" onclick="updateUser()">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="toast-container" id="toastContainer">
+    <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">提示</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toastBody"></div>
+    </div>
+</div>
 
 <footer class="text-center text-muted mt-5 mb-3">QTECH 智能制造认证中心 © 2025</footer>
-<!-- 复用 toast 通知 -->
+<!-- Toast Container -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="logoutToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">确认退出</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            确定要退出登录吗？
+            <button type="button" class="btn btn-primary ms-2" onclick="confirmLogout()">确定</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="toast">取消</button>
+        </div>
+    </div>
+</div>
 <script th:inline="javascript">
     /*<![CDATA[*/
     window.accessToken = /*[[${access_token}]]*/ '';
-
     /*]]>*/
-
-    function showToast(message, type = 'success') {
-        const toastHtml = `
-        <div class="toast align-items-center text-bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body">${message}</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-        </div>`;
-
-        $('#toastContainer').append(toastHtml);
-        const toastEl = new bootstrap.Toast($('#toastContainer .toast').last()[0]);
-        toastEl.show();
-        setTimeout(() => {
-            $('#toastContainer .toast').first().remove();
-        }, 5000);
-    }
 
     let currentPage = 0;
     let pageSize = 10;
+    const genderMap = {
+        '男': 'MALE',
+        '女': 'FEMALE',
+        '0': 'UNKNOWN'
+    };
 
     function loadUsers(page = currentPage, size = pageSize) {
         page = parseInt(page, 10);  // 这里加上，确保 page 是数字
@@ -160,11 +252,12 @@
                 tbody.empty();
                 if (users.length > 0) {
                     users.forEach(u => {
+                        const genderDisplay = genderMap[u.gender] || u.gender
                         tbody.append(`<tr>
-                        <td>${u.employeeId}</td>
+                        <td>${u.empId}</td>
                         <td>${u.username}</td>
-                        <td>${u.department || ''}</td>
-                        <td>${u.gender || ''}</td>
+                        <td>${u.department.deptName || ''}</td>
+                        <td>${genderDisplay}</td>
                         <td>${''}</td>
                         <td>${u.permissions || ''}</td>
                         <td>
@@ -215,7 +308,11 @@
             employeeId: $('#addEmployeeId').val(),
             username: $('#addUsername').val(),
             department: $('#addDepartment').val(),
-            gender: $('#addGender').val()
+            gender: genderMap[$('#addGender').val()], // 转换性别值
+            avatar: $('#addAvatar').val(),
+            pwHash: $('#addPassword').val(),
+            email: $('#addEmail').val(),
+            phone: $('#addPhone').val()
         };
         request.post('/users/add', user)
             .then(response => {
@@ -235,9 +332,9 @@
 
     function showEditModal(user) {
         $('#editUserId').val(user.id);
-        $('#editEmployeeId').val(user.employeeId);
+        $('#editEmpId').val(user.empId);
         $('#editUsername').val(user.username);
-        $('#editDepartment').val(user.department);
+        $('#editDepartment').val(user.department.deptName);
         $('#editGender').val(user.gender);
         $('#editUserModal').modal('show');
     }
@@ -245,10 +342,12 @@
     function updateUser() {
         const id = $('#editUserId').val();
         const user = {
-            employeeId: $('#editEmployeeId').val(),
+            employeeId: $('#editEmpId').val(),
             username: $('#editUsername').val(),
-            department: $('#editDepartment').val(),
-            gender: $('#editGender').val()
+            department: {
+                deptName: $('#editDepartment').val()
+            },
+            gender: genderMap[$('#editGender').val()]
         };
         request.put(`/users/update/${id}`, user)
             .then(response => {
@@ -285,44 +384,5 @@
         loadUsers(0);
     });
 </script>
-
-<!-- 编辑用户模态框 -->
-<div class="modal fade" id="editUserModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">编辑用户</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" id="editUserId">
-                <div class="mb-3">
-                    <label class="form-label">工号</label>
-                    <input type="text" class="form-control" id="editEmployeeId">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">用户名</label>
-                    <input type="text" class="form-control" id="editUsername">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">部门</label>
-                    <input type="text" class="form-control" id="editDepartment">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">性别</label>
-                    <select class="form-select" id="editGender">
-                        <option value="男">男</option>
-                        <option value="女">女</option>
-                    </select>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
-                <button type="button" class="btn btn-primary" onclick="updateUser()">保存</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 </body>
 </html>

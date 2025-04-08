@@ -54,35 +54,42 @@ instance.interceptors.response.use(
     (response) => response.data,
     (error) => {
         const {config, response} = error;
-        if (response && response.status === 401 && !config._retry) {
-            if (!isRefreshing) {
-                isRefreshing = true;
-                return refreshAccessToken()
-                    .then((newToken) => {
-                        requestQueue.forEach((cb) => cb(newToken));
-                        requestQueue = [];
-                        isRefreshing = false;
+        if (response) {
+            switch (response.status) {
+                case 401:
+                    if (!isRefreshing) {
+                        isRefreshing = true;
+                        return refreshAccessToken()
+                            .then((newToken) => {
+                                requestQueue.forEach((cb) => cb(newToken));
+                                requestQueue = [];
+                                isRefreshing = false;
 
-                        config._retry = true;
-                        config.headers['Authorization'] = `Bearer ${newToken}`;
-                        return instance(config);
-                    })
-                    .catch((err) => {
-                        isRefreshing = false;
-                        return Promise.reject(err);
+                                config._retry = true;
+                                config.headers['Authorization'] = `Bearer ${newToken}`;
+                                return instance(config);
+                            })
+                            .catch((err) => {
+                                isRefreshing = false;
+                                return Promise.reject(err);
+                            });
+                    }
+
+                    return new Promise((resolve) => {
+                        requestQueue.push((newToken) => {
+                            config._retry = true;
+                            config.headers['Authorization'] = `Bearer ${newToken}`;
+                            resolve(instance(config));
+                        });
                     });
+                    break;
+                case 403:
+                    showToast('Access denied', 'danger');
+                    return Promise.reject(error);
+                default:
+                    return Promise.reject(error);
             }
-
-            return new Promise((resolve) => {
-                requestQueue.push((newToken) => {
-                    config._retry = true;
-                    config.headers['Authorization'] = `Bearer ${newToken}`;
-                    resolve(instance(config));
-                });
-            });
         }
-
-        // 其他错误直接返回
         return Promise.reject(error);
     }
 );
