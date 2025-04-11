@@ -1,7 +1,7 @@
 package com.qtech.im.auth.service.management.impl;
 
-import com.qtech.im.auth.model.Role;
-import com.qtech.im.auth.repository.management.RoleRepository;
+import com.qtech.im.auth.model.primary.Role;
+import com.qtech.im.auth.repository.primary.management.RoleRepository;
 import com.qtech.im.auth.service.management.IRoleService;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;

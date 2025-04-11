@@ -1,6 +1,6 @@
 package com.qtech.im.auth.service.management;
 
-import com.qtech.im.auth.model.Role;
+import com.qtech.im.auth.model.primary.Role;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 

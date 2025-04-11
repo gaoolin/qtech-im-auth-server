@@ -4,8 +4,11 @@ import com.qtech.im.auth.common.PasswordEncryptor;
 import com.qtech.im.auth.exception.authentication.InvalidCredentialsException;
 import com.qtech.im.auth.exception.biz.BusinessException;
 import com.qtech.im.auth.exception.biz.UserNotFoundException;
-import com.qtech.im.auth.model.*;
-import com.qtech.im.auth.repository.management.*;
+import com.qtech.im.auth.model.primary.Permission;
+import com.qtech.im.auth.model.primary.Role;
+import com.qtech.im.auth.model.primary.User;
+import com.qtech.im.auth.model.primary.UserPermission;
+import com.qtech.im.auth.repository.primary.management.*;
 import com.qtech.im.auth.service.management.IUserService;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;
@@ -29,18 +32,18 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements IUserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-    private final DepartmentRepository departmentRepository;
-    private final PermissionRepository permissionRepository;
-    private final UserSystemRoleRepository userSystemRoleRepository;
-    private final UserPermissionRepository userPermissionRepository;
+    private final DeptRepository deptRepository;
+    private final PermRepository permRepository;
+    private final UserSysRoleRepository userSysRoleRepository;
+    private final UserPermRepository userPermRepository;
 
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, DepartmentRepository departmentRepository, PermissionRepository permissionRepository, UserSystemRoleRepository userSystemRoleRepository, UserPermissionRepository userPermissionRepository) {
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, DeptRepository deptRepository, PermRepository permRepository, UserSysRoleRepository userSysRoleRepository, UserPermRepository userPermRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
-        this.departmentRepository = departmentRepository;
-        this.permissionRepository = permissionRepository;
-        this.userSystemRoleRepository = userSystemRoleRepository;
-        this.userPermissionRepository = userPermissionRepository;
+        this.deptRepository = deptRepository;
+        this.permRepository = permRepository;
+        this.userSysRoleRepository = userSysRoleRepository;
+        this.userPermRepository = userPermRepository;
     }
 
     /**
@@ -80,7 +83,7 @@ public class UserServiceImpl implements IUserService {
      */
     @Override
     public void removeRoleFromUser(String empId, Long roleId) {
-        userSystemRoleRepository.deleteByUserEmpIdAndRoleId(empId, roleId);
+        userSysRoleRepository.deleteByUserEmpIdAndRoleId(empId, roleId);
     }
 
     /**
@@ -89,12 +92,12 @@ public class UserServiceImpl implements IUserService {
     @Override
     public void addPermissionToUser(String empId, Long permId) {
         User user = userRepository.findByEmpId(empId).orElseThrow(() -> new BusinessException(404, "用户不存在"));
-        Permission perm = permissionRepository.findById(permId).orElseThrow(() -> new BusinessException(404, "权限不存在"));
+        Permission perm = permRepository.findById(permId).orElseThrow(() -> new BusinessException(404, "权限不存在"));
 
         UserPermission userPerm = new UserPermission();
         userPerm.setUser(user);
         userPerm.setPermission(perm);
-        userPermissionRepository.save(userPerm);
+        userPermRepository.save(userPerm);
     }
 
     /**
@@ -102,7 +105,7 @@ public class UserServiceImpl implements IUserService {
      */
     @Override
     public void removePermFromUser(String empId, Long permId) {
-        userPermissionRepository.deleteByUserEmpIdAndPermission(empId, permId);
+        userPermRepository.deleteByUserEmpIdAndPermission(empId, permId);
     }
 
     /**
@@ -110,7 +113,7 @@ public class UserServiceImpl implements IUserService {
      */
     @Override
     public void removeAllRolesFromUser(String empId) {
-        userSystemRoleRepository.deleteByUserEmpId(empId);
+        userSysRoleRepository.deleteByUserEmpId(empId);
     }
 
     /**
@@ -118,7 +121,7 @@ public class UserServiceImpl implements IUserService {
      */
     @Override
     public void removeAllPermsFromUser(String empId) {
-        userPermissionRepository.deleteByUserEmpId(empId);
+        userPermRepository.deleteByUserEmpId(empId);
     }
 
     @Override
@@ -158,7 +161,7 @@ public class UserServiceImpl implements IUserService {
         User authUser = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
         authUser.setUsername(user.getUsername());
 
-        departmentRepository.findByDeptName(user.getDepartment().getDeptName()).ifPresentOrElse(authUser::setDepartment, () -> {
+        deptRepository.findByDeptName(user.getDepartment().getDeptName()).ifPresentOrElse(authUser::setDepartment, () -> {
             throw new BusinessException(400, "部门不存在");
         });
 

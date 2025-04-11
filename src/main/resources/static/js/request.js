@@ -84,7 +84,7 @@ instance.interceptors.response.use(
                     });
                     break;
                 case 403:
-                    showToast('Access denied', 'danger');
+                    redirectToLogin();
                     return Promise.reject(error);
                 default:
                     return Promise.reject(error);

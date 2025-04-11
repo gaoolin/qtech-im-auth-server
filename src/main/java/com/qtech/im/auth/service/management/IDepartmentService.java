@@ -1,6 +1,7 @@
 package com.qtech.im.auth.service.management;
 
-import com.qtech.im.auth.model.Department;
+import com.qtech.im.auth.model.primary.Department;
+import com.qtech.im.auth.model.primary.DeptTree;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -12,8 +13,6 @@ import java.util.List;
  * date   :  2025/04/08 08:43:29
  * desc   :
  */
-
-
 public interface IDepartmentService {
     List<Department> getDeptInfo();
 
@@ -24,4 +23,8 @@ public interface IDepartmentService {
     Department createDept(Department dept);
 
     void deleteDept(Long id);
+
+    Department updateDept(Department dept);
+
+    List<DeptTree> getDeptTree();
 }

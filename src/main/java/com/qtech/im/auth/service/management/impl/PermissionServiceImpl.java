@@ -1,9 +1,9 @@
 package com.qtech.im.auth.service.management.impl;
 
-import com.qtech.im.auth.model.Permission;
-import com.qtech.im.auth.model.System;
-import com.qtech.im.auth.repository.management.PermissionRepository;
-import com.qtech.im.auth.repository.management.SystemRepository;
+import com.qtech.im.auth.model.primary.Permission;
+import com.qtech.im.auth.model.primary.System;
+import com.qtech.im.auth.repository.primary.management.PermRepository;
+import com.qtech.im.auth.repository.primary.management.SystemRepository;
 import com.qtech.im.auth.service.management.IPermissionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,38 +23,38 @@ import java.util.Optional;
 @Service
 public class PermissionServiceImpl implements IPermissionService {
 
-    private final PermissionRepository permissionRepository;
+    private final PermRepository permRepository;
     private final SystemRepository systemRepository;
 
     @Autowired
-    public PermissionServiceImpl(PermissionRepository permissionRepository, SystemRepository systemRepository) {
-        this.permissionRepository = permissionRepository;
+    public PermissionServiceImpl(PermRepository permRepository, SystemRepository systemRepository) {
+        this.permRepository = permRepository;
         this.systemRepository = systemRepository;
     }
 
     @Override
     public Optional<Permission> findByPermName(String permName) {
-        return permissionRepository.findByPermName(permName);
+        return permRepository.findByPermName(permName);
     }
 
     @Override
     public List<Permission> findAll() {
-        return permissionRepository.findAll();
+        return permRepository.findAll();
     }
 
     @Override
     public Permission save(Permission perm) {
-        return permissionRepository.save(perm);
+        return permRepository.save(perm);
     }
 
     @Override
     public void deleteById(Long id) {
-        permissionRepository.deleteById(id);
+        permRepository.deleteById(id);
     }
 
     @Override
     public Permission getOrCreatePerm(String permName) {
-        return permissionRepository.findByPermName(permName).orElseGet(() -> {
+        return permRepository.findByPermName(permName).orElseGet(() -> {
             return null;
         });
     }
@@ -71,7 +71,7 @@ public class PermissionServiceImpl implements IPermissionService {
         // 查询是否已经存在该权限
         System system = new System();
         system.setSysName(sysName);
-        Optional<Permission> perm = permissionRepository.findByPermNameAndSystemAndAppName(permName, system, appName);
+        Optional<Permission> perm = permRepository.findByPermNameAndSystemAndAppName(permName, system, appName);
         if (perm.isPresent()) {
             return perm.get();
         }
@@ -81,11 +81,11 @@ public class PermissionServiceImpl implements IPermissionService {
 
         try {
             // 尝试保存新权限
-            return permissionRepository.save(newPermission);
+            return permRepository.save(newPermission);
         } catch (Exception e) {
             // 如果保存失败，可能是并发创建导致的唯一约束冲突，重新查询
             log.warn("Failed to save permission, retrying...", e);
-            return permissionRepository.findByPermNameAndSystemAndAppName(permName, system, appName)
+            return permRepository.findByPermNameAndSystemAndAppName(permName, system, appName)
                     .orElseThrow(() -> new RuntimeException("Permission creation failed after retry.", e));
         }
     }
@@ -119,7 +119,7 @@ public class PermissionServiceImpl implements IPermissionService {
     public List<String> getPermsByEmpIdAndSystem(String empId, String sysName) {
         System system = new System();
         system.setSysName(sysName);
-        Optional<List<Permission>> byEmployeeIdAndSystemName = permissionRepository.findByEmpIdAndSystem(empId, system);
+        Optional<List<Permission>> byEmployeeIdAndSystemName = permRepository.findByEmpIdAndSystem(empId, system);
         List<Permission> permissions = byEmployeeIdAndSystemName.orElse(null);
         if (permissions != null) {
             return permissions.stream().map(Permission::getPermName).toList();
@@ -129,7 +129,7 @@ public class PermissionServiceImpl implements IPermissionService {
 
     @Override
     public Permission createPerm(Permission perm) {
-        return permissionRepository.save(perm);
+        return permRepository.save(perm);
     }
 
     @Override
@@ -139,10 +139,10 @@ public class PermissionServiceImpl implements IPermissionService {
 
     @Override
     public Permission updatePerm(Long id, Permission perm) {
-        Permission permDb = permissionRepository.findById(id).orElseThrow(() -> new RuntimeException("Permission not found"));
+        Permission permDb = permRepository.findById(id).orElseThrow(() -> new RuntimeException("Permission not found"));
         permDb.setPermName(perm.getPermName());
         permDb.setRemark(perm.getRemark());
-        return permissionRepository.save(perm);
+        return permRepository.save(perm);
     }
 
     @Override
@@ -152,18 +152,18 @@ public class PermissionServiceImpl implements IPermissionService {
 
     @Override
     public List<Permission> findAllPerms() {
-        return permissionRepository.findAll();
+        return permRepository.findAll();
     }
 
     @Override
     public List<Permission> findPermsBySystem(String sysName) {
         System system = new System();
         system.setSysName(sysName);
-        return permissionRepository.findBySystem(system);
+        return permRepository.findBySystem(system);
     }
 
     @Override
     public List<Permission> findPermsByApp(String appName) {
-        return permissionRepository.findByAppName(appName);
+        return permRepository.findByAppName(appName);
     }
 }

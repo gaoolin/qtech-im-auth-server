@@ -1,7 +1,6 @@
 package com.qtech.im.auth.service.management;
 
-import com.qtech.im.auth.model.Permission;
-import com.qtech.im.auth.model.Permission;
+import com.qtech.im.auth.model.primary.Permission;
 
 import java.util.List;
 import java.util.Optional;

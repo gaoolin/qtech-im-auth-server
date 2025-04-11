@@ -1,7 +1,7 @@
 package com.qtech.im.auth.service.api.impl;
 
-import com.qtech.im.auth.model.SystemConfig;
-import com.qtech.im.auth.repository.api.BlackListRepository;
+import com.qtech.im.auth.model.primary.SystemConfig;
+import com.qtech.im.auth.repository.primary.api.BlackListRepository;
 import com.qtech.im.auth.service.api.IBlackListService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

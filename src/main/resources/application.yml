@@ -13,7 +13,9 @@ spring:
       authorization-server:
         issuer: http://intelligentmfg.qtech.com
   jpa:
-    database-platform: org.hibernate.dialect.Oracle19cDialect
+    properties:
+      hibernate:
+        database-platform: org.hibernate.dialect.Oracle19cDialect
     hibernate:
       ddl-auto: none  # 让Hibernate自动更新数据库结构 update
       naming:
@@ -57,6 +59,8 @@ spring:
       static-locations: classpath:/static/  # 告诉 Spring 去哪里找资源（静态文件的真实物理位置）
 #  mvc:
 #    static-path-pattern: /static/**  #  所有静态资源访问必须通过 /static/ 开头
+  banner:
+    location: classpath:banner.txt
 
 jwt:
   secret: Qw3nTf6yHp9kLmO0Rs2vBuXzCeJ5tWa1  # 用于签名和验证 JWT
@@ -66,6 +70,5 @@ jwt:
 logging:
   config: classpath:logback-spring.xml
   level: # 日志级别配置
-    root: info
+    root: warn
     com.qtech.im: debug
-    org.hibernate: debug

@@ -2,7 +2,7 @@ package com.qtech.im.auth.controller.api;
 
 import com.qtech.im.auth.common.Result;
 import com.qtech.im.auth.common.ResultCode;
-import com.qtech.im.auth.model.SystemConfig;
+import com.qtech.im.auth.model.primary.SystemConfig;
 import com.qtech.im.auth.service.api.IBlackListService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;

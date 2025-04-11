@@ -1,8 +1,8 @@
 package com.qtech.im.auth.service.management;
 
-import com.qtech.im.auth.model.Role;
-import com.qtech.im.auth.model.User;
-import com.qtech.im.auth.model.UserSystemRole;
+import com.qtech.im.auth.model.primary.Role;
+import com.qtech.im.auth.model.primary.User;
+import com.qtech.im.auth.model.primary.UserSystemRole;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
 package com.qtech.im.auth.service.management.impl;
 
-import com.qtech.im.auth.repository.management.RoleRepository;
-import com.qtech.im.auth.repository.management.SystemRepository;
+import com.qtech.im.auth.repository.primary.management.RoleRepository;
+import com.qtech.im.auth.repository.primary.management.SystemRepository;
 import com.qtech.im.auth.service.management.ISystemService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,17 +1,14 @@
 package com.qtech.im.auth.controller.management;
 
 import com.qtech.im.auth.common.Result;
-import com.qtech.im.auth.model.Role;
+import com.qtech.im.auth.model.primary.Role;
 import com.qtech.im.auth.service.management.IRoleService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 /**

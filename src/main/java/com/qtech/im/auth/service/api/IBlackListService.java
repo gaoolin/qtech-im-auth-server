@@ -1,6 +1,6 @@
 package com.qtech.im.auth.service.api;
 
-import com.qtech.im.auth.model.SystemConfig;
+import com.qtech.im.auth.model.primary.SystemConfig;
 
 import java.util.List;
 

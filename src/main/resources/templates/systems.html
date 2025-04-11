@@ -87,9 +87,9 @@
 <div class="container mt-5">
     <h2>外部系统管理</h2>
     <div class="d-flex mb-3">
-        <input type="text" id="searchKeyword" class="form-control me-2" placeholder="请输入系统名" onkeypress="if(event.keyCode===13) loadUsers()">
-        <button class="btn btn-primary" onclick="loadUsers()">搜索</button>
-        <button class="btn btn-success ms-3" data-bs-toggle="modal" data-bs-target="#addUserModal">新增系统</button>
+        <input type="text" id="searchKeyword" class="form-control me-2" placeholder="请输入系统名" onkeypress="if(event.keyCode===13) loadSystems()">
+        <button class="btn btn-primary" onclick="loadSystems()">搜索</button>
+        <button class="btn btn-success ms-3" data-bs-toggle="modal" data-bs-target="#addSystemModal">新增系统</button>
     </div>
 
     <table class="table table-bordered table-hover text-center shadow-sm rounded" style="width: 100%; margin: 0 auto;">
@@ -100,7 +100,7 @@
             <th>操作</th>
         </tr>
         </thead>
-        <tbody id="userTableBody">
+        <tbody id="systemTableBody">
         </tbody>
     </table>
     <nav aria-label="Page navigation example">
@@ -108,7 +108,7 @@
         </ul>
     </nav>
 
-    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+    <div class="modal fade" id="addSystemModal" tabindex="-1" aria-labelledby="addSystemModalLabel" aria-hidden="true">
         <div class="modal-dialog">
 
         </div>

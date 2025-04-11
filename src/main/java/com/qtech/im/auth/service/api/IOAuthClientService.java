@@ -1,6 +1,6 @@
 package com.qtech.im.auth.service.api;
 
-import com.qtech.im.auth.model.OAuthClient;
+import com.qtech.im.auth.model.primary.OAuthClient;
 
 /**
  * author :  gaozhilin

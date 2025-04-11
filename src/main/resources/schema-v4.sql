@@ -490,13 +490,14 @@ CREATE
     is_cache    NUMBER(1, 0)  DEFAULT 0,
     menu_type   CHAR(1)       DEFAULT '',
     visible     CHAR(1)       DEFAULT '0',
-    status      CHAR(1)       DEFAULT '0',
     perms       VARCHAR2(100),
     icon        VARCHAR2(100) DEFAULT '#',
-    create_time TIMESTAMP     DEFAULT CURRENT_TIMESTAMP, -- 创建时间
+    status      CHAR(1)       DEFAULT '0' CHECK ( status IN ('0', '1') ),   -- 状态：0 正常 1 停用
+    del_flag    CHAR(1)       DEFAULT '0' CHECK ( del_flag IN ('0', '1') ), -- 删除标志（0代表存在 1代表删除）
+    create_time TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,                    -- 创建时间
     update_time TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
-    create_by   VARCHAR2(64)  DEFAULT '',
-    update_by   VARCHAR2(64)  DEFAULT '',
+    created_by  VARCHAR2(64)  DEFAULT '',
+    updated_by  VARCHAR2(64)  DEFAULT '',
     remark      VARCHAR2(500),
     CONSTRAINT pk_im_auth_menu PRIMARY KEY (id)
 );
@@ -647,14 +648,16 @@ END;
 CREATE TABLE
     im_auth_api_key
 (
-    id          NUMBER(19, 0) PRIMARY KEY,         -- 主键 ID
-    user_id     NUMBER(19, 0)        NOT NULL,     -- 用户 ID
-    api_key     VARCHAR2(255) UNIQUE NOT NULL,     -- API Key 值
-    expires_at  TIMESTAMP            NOT NULL,     -- 过期时间
-    create_time TIMESTAMP    DEFAULT SYSTIMESTAMP, -- 创建时间
-    update_time TIMESTAMP    DEFAULT SYSTIMESTAMP, -- 更新时间
-    created_by  VARCHAR2(50) DEFAULT '',           -- 创建人
-    updated_by  VARCHAR2(50) DEFAULT '',           -- 更新人
+    id          NUMBER(19, 0) PRIMARY KEY,                                 -- 主键 ID
+    user_id     NUMBER(19, 0)        NOT NULL,                             -- 用户 ID
+    api_key     VARCHAR2(255) UNIQUE NOT NULL,                             -- API Key 值
+    expires_at  TIMESTAMP            NOT NULL,                             -- 过期时间
+    status      CHAR(1)      DEFAULT '0' CHECK ( status IN ('0', '1') ),   -- 状态：0 正常 1 停用
+    del_flag    CHAR(1)      DEFAULT '0' CHECK ( del_flag IN ('0', '1') ), -- 删除标志（0代表存在 1代表删除）
+    create_time TIMESTAMP    DEFAULT SYSTIMESTAMP,                         -- 创建时间
+    update_time TIMESTAMP    DEFAULT SYSTIMESTAMP,                         -- 更新时间
+    created_by  VARCHAR2(50) DEFAULT '',                                   -- 创建人
+    updated_by  VARCHAR2(50) DEFAULT '',                                   -- 更新人
     remark      CLOB,
     FOREIGN KEY (user_id) REFERENCES im_auth_user (id) ON DELETE CASCADE
 );
@@ -699,14 +702,16 @@ END;
 CREATE TABLE
     im_auth_session
 (
-    id            NUMBER(19, 0) PRIMARY KEY,         -- 主键 ID
-    user_id       NUMBER(19, 0)        NOT NULL,     -- 用户 ID
-    session_token VARCHAR2(255) UNIQUE NOT NULL,     -- 会话 Token
-    expires_at    TIMESTAMP            NOT NULL,     -- 过期时间
-    create_time   TIMESTAMP    DEFAULT SYSTIMESTAMP, -- 创建时间
-    update_time   TIMESTAMP    DEFAULT SYSTIMESTAMP, -- 更新时间
-    created_by    VARCHAR2(50) DEFAULT '',           -- 创建人
-    updated_by    VARCHAR2(50) DEFAULT '',           -- 更新人
+    id            NUMBER(19, 0) PRIMARY KEY,                                 -- 主键 ID
+    user_id       NUMBER(19, 0)        NOT NULL,                             -- 用户 ID
+    session_token VARCHAR2(255) UNIQUE NOT NULL,                             -- 会话 Token
+    expires_at    TIMESTAMP            NOT NULL,                             -- 过期时间
+    status        CHAR(1)      DEFAULT '0' CHECK ( status IN ('0', '1') ),   -- 状态：0 正常 1 停用
+    del_flag      CHAR(1)      DEFAULT '0' CHECK ( del_flag IN ('0', '1') ), -- 删除标志（0代表存在 1代表删除）
+    create_time   TIMESTAMP    DEFAULT SYSTIMESTAMP,                         -- 创建时间
+    update_time   TIMESTAMP    DEFAULT SYSTIMESTAMP,                         -- 更新时间
+    created_by    VARCHAR2(50) DEFAULT '',                                   -- 创建人
+    updated_by    VARCHAR2(50) DEFAULT '',                                   -- 更新人
     remark        CLOB,
     FOREIGN KEY (user_id) REFERENCES im_auth_user (id) ON DELETE CASCADE
 );
@@ -755,8 +760,13 @@ CREATE TABLE
     user_id     NUMBER(19, 0) NOT NULL,         -- 用户 ID，可为空
     action      VARCHAR2(255) NOT NULL,         -- 操作行为
     ip_address  VARCHAR2(50),                   -- IP 地址
-    create_time TIMESTAMP DEFAULT SYSTIMESTAMP, -- 创建时间
-    remark      CLOB,
+    status        CHAR(1)      DEFAULT '0' CHECK ( status IN ('0', '1') ),   -- 状态：0 正常 1 停用
+    del_flag      CHAR(1)      DEFAULT '0' CHECK ( del_flag IN ('0', '1') ), -- 删除标志（0代表存在 1代表删除）
+    create_time   TIMESTAMP    DEFAULT SYSTIMESTAMP,                         -- 创建时间
+    update_time   TIMESTAMP    DEFAULT SYSTIMESTAMP,                         -- 更新时间
+    created_by    VARCHAR2(50) DEFAULT '',                                   -- 创建人
+    updated_by    VARCHAR2(50) DEFAULT '',                                   -- 更新人
+    remark        CLOB,
     FOREIGN KEY (user_id) REFERENCES im_auth_user (id) ON DELETE SET NULL
 );
 -- 审计日志索引
@@ -799,10 +809,12 @@ CREATE TABLE im_auth_system_config
     config_key   VARCHAR2(100) DEFAULT '',
     config_value VARCHAR2(100) DEFAULT '',
     config_type  CHAR(1)       DEFAULT 'N', -- 系统内置（Y是 N否）
-    create_by    VARCHAR2(64)  DEFAULT '',
-    create_time  TIMESTAMP DEFAULT SYSTIMESTAMP,
-    update_by    VARCHAR2(64)  DEFAULT '',
-    update_time  TIMESTAMP DEFAULT SYSTIMESTAMP,
+    status        CHAR(1)      DEFAULT '0' CHECK ( status IN ('0', '1') ),   -- 状态：0 正常 1 停用
+    del_flag      CHAR(1)      DEFAULT '0' CHECK ( del_flag IN ('0', '1') ), -- 删除标志（0代表存在 1代表删除）
+    create_time   TIMESTAMP    DEFAULT SYSTIMESTAMP,                         -- 创建时间
+    update_time   TIMESTAMP    DEFAULT SYSTIMESTAMP,                         -- 更新时间
+    created_by    VARCHAR2(50) DEFAULT '',                                   -- 创建人
+    updated_by    VARCHAR2(50) DEFAULT '',                                   -- 更新人
     remark       VARCHAR2(500) DEFAULT null,
     CONSTRAINT pk_im_auth_system_config PRIMARY KEY (id),
     FOREIGN KEY (sys_id) REFERENCES im_auth_system (id) ON DELETE CASCADE
