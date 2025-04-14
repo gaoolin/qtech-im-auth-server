@@ -23,8 +23,8 @@ public class DeptSyncTask {
         this.deptSyncService = deptSyncService;
     }
 
-    @Scheduled(cron = "0 * * * * ?") // 每分钟执行一次（正式部署建议为每天凌晨）
-    // @Scheduled(cron = "0 0 2 * * ?") // 每天凌晨2点执行
+    // @Scheduled(cron = "0 * * * * ?") // 每分钟执行一次（正式部署建议为每天凌晨）
+    @Scheduled(cron = "0 0 2 * * ?") // 每天凌晨2点执行
     public void sync() {
         if (isRunning) {
             logger.warn(">>>>> 上一次部门同步任务未完成，跳过本次执行。");
