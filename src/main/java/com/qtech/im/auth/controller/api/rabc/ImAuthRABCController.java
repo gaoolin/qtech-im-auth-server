@@ -1,7 +1,7 @@
 package com.qtech.im.auth.controller.api.rabc;
 
 import com.qtech.im.auth.common.JwtTokenProvider;
-import com.qtech.im.auth.dto.GenerateUserTokenRequest;
+import com.qtech.im.auth.model.dto.GenerateUserTokenRequest;
 import com.qtech.im.auth.service.management.IUserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;

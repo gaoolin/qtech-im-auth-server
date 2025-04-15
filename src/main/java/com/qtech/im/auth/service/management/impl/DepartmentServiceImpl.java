@@ -1,20 +1,23 @@
 package com.qtech.im.auth.service.management.impl;
 
-import com.qtech.im.auth.model.primary.Department;
-import com.qtech.im.auth.model.primary.DeptTree;
+import com.qtech.im.auth.mapper.DepartmentMapper;
+import com.qtech.im.auth.model.dto.management.DeptDTO;
+import com.qtech.im.auth.model.dto.management.DeptTreeNodeDTO;
+import com.qtech.im.auth.model.entity.primary.Department;
 import com.qtech.im.auth.repository.primary.management.DeptRepository;
 import com.qtech.im.auth.service.management.IDepartmentService;
-import com.qtech.im.auth.utils.DelFlag;
-import com.qtech.im.auth.utils.DepartmentTreeBuilder;
+import com.qtech.im.auth.utils.TreeBuilder;
 import jakarta.persistence.criteria.Predicate;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * author :  gaozhilin
@@ -23,41 +26,11 @@ import java.util.List;
  * desc   :
  */
 @Service
+@RequiredArgsConstructor
 @Transactional
 public class DepartmentServiceImpl implements IDepartmentService {
     private final DeptRepository deptRepository;
-
-    public DepartmentServiceImpl(DeptRepository deptRepository) {
-        this.deptRepository = deptRepository;
-    }
-
-    @Override
-    public List<Department> getDeptInfo() {
-        return deptRepository.findAll();
-    }
-
-    @Override
-    public Page<Department> findAll(Pageable pageable) {
-        return deptRepository.findAll(pageable);
-    }
-
-    @Override
-    public Page<Department> getDeptInfoWithConditions(String keyword, Pageable pageable) {
-        return deptRepository.findAll((root, query, criteriaBuilder) -> {
-            List<Predicate> predicates = new ArrayList<>();
-
-            predicates.add(criteriaBuilder.equal(root.get("delFlag"), DelFlag.EXISTS));
-            if (keyword != null && !keyword.isEmpty()) {
-                predicates.add(criteriaBuilder.like(root.get("deptName"), "%" + keyword + "%"));
-            }
-            return criteriaBuilder.or(predicates.toArray(new Predicate[0]));
-        }, pageable);
-    }
-
-    @Override
-    public Department createDept(Department dept) {
-        return deptRepository.save(dept);
-    }
+    private final DepartmentMapper departmentMapper;
 
     @Override
     public void deleteDept(Long id) {
@@ -65,16 +38,42 @@ public class DepartmentServiceImpl implements IDepartmentService {
     }
 
     @Override
-    public Department updateDept(Department dept) {
-        if (dept.getId() != null) {
-            return deptRepository.save(dept);
-        }
+    public Page<DeptDTO> getPage(PageRequest pageable) {
+        Page<Department> all = deptRepository.findAll(pageable);
+        return all.map(departmentMapper::toDTO);
+    }
+
+    @Override
+    public DeptDTO createDept(DeptDTO dept) {
         return null;
     }
 
     @Override
-    public List<DeptTree> getDeptTree() {
-        List<Department> allDepts = deptRepository.findAll(Sort.by("orderNum"));
-        return DepartmentTreeBuilder.build(allDepts);
+    public DeptDTO updateDept(DeptDTO dept) {
+        return null;
+    }
+
+    @Override
+    public List<DeptTreeNodeDTO> getDeptTree() {
+        List<Department> all = deptRepository.findAll(Sort.by("parentId", "orderNum"));
+
+        List<DeptTreeNodeDTO> nodeList = all.stream()
+                .map(departmentMapper::toTreeNodeDTO)
+                .collect(Collectors.toList());
+
+        return TreeBuilder.buildTree(nodeList, 0L);
+    }
+
+    @Override
+    public Page<DeptDTO> findDeptsWithConditions(String keyword, PageRequest pageable) {
+        if (keyword != null && !keyword.isEmpty()) {
+            Page<Department> all = deptRepository.findAll((root, query, criteriaBuilder) -> {
+                List<Predicate> predicates = new ArrayList<>();
+                predicates.add(criteriaBuilder.like(root.get("deptName"), "%" + keyword + "%"));
+                return criteriaBuilder.or(predicates.toArray(new Predicate[0]));
+            }, pageable);
+            return all.map(departmentMapper::toDTO);
+        }
+        return deptRepository.findAll(pageable).map(departmentMapper::toDTO);
     }
 }

@@ -300,7 +300,7 @@ strict=true 模式下，一旦数据源未配置将直接抛出异常。
 数据源无法连接	数据库连接配置错误	检查数据库地址、用户名、密码等配置
 注解切换失败	未正确应用切面（AOP）	确保 @EnableAspectJAutoProxy 生效，并正确使用 @TargetDataSource 注解
 # 🧰 相关依赖
-```xml
+```
 <dependency>
   <groupId>com.zaxxer</groupId>
   <artifactId>HikariCP</artifactId>

@@ -1,6 +1,6 @@
 package com.qtech.im.auth.repository.primary.api;
 
-import com.qtech.im.auth.model.primary.OAuthClient;
+import com.qtech.im.auth.model.entity.primary.OAuthClient;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

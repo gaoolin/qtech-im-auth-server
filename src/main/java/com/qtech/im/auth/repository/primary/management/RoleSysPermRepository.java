@@ -1,8 +1,8 @@
 package com.qtech.im.auth.repository.primary.management;
 
-import com.qtech.im.auth.model.primary.Permission;
-import com.qtech.im.auth.model.primary.Role;
-import com.qtech.im.auth.model.primary.RoleSystemPermission;
+import com.qtech.im.auth.model.entity.primary.Permission;
+import com.qtech.im.auth.model.entity.primary.Role;
+import com.qtech.im.auth.model.entity.primary.RoleSystemPermission;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

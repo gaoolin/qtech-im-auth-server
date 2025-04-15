@@ -1,6 +1,6 @@
 package com.qtech.im.auth.repository.primary.api.rabc;
 
-import com.qtech.im.auth.model.primary.SystemConfig;
+import com.qtech.im.auth.model.entity.primary.SystemConfig;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;

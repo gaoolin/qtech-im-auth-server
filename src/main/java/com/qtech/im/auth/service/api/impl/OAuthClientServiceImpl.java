@@ -1,6 +1,6 @@
 package com.qtech.im.auth.service.api.impl;
 
-import com.qtech.im.auth.model.primary.OAuthClient;
+import com.qtech.im.auth.model.entity.primary.OAuthClient;
 import com.qtech.im.auth.repository.primary.api.OAuthClientRepository;
 import com.qtech.im.auth.service.api.IOAuthClientService;
 import org.springframework.stereotype.Service;

@@ -36,7 +36,7 @@ public class PrimaryJpaConfig {
             @Qualifier("primaryDataSource") DataSource dataSource) {
         LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
         factory.setDataSource(dataSource);
-        factory.setPackagesToScan("com.qtech.im.auth.model.primary");
+        factory.setPackagesToScan("com.qtech.im.auth.model.entity.primary");
         factory.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
 
         Map<String, Object> properties = new HashMap<>();

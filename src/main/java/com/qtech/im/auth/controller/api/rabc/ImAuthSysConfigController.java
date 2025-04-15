@@ -1,6 +1,6 @@
 package com.qtech.im.auth.controller.api.rabc;
 
-import com.qtech.im.auth.model.primary.SystemConfig;
+import com.qtech.im.auth.model.entity.primary.SystemConfig;
 import com.qtech.im.auth.service.api.rabc.ISysConfigService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

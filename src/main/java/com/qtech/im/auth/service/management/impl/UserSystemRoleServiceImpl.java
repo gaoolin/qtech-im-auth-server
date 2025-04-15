@@ -1,8 +1,8 @@
 package com.qtech.im.auth.service.management.impl;
 
-import com.qtech.im.auth.model.primary.Role;
-import com.qtech.im.auth.model.primary.User;
-import com.qtech.im.auth.model.primary.UserSystemRole;
+import com.qtech.im.auth.model.entity.primary.Role;
+import com.qtech.im.auth.model.entity.primary.User;
+import com.qtech.im.auth.model.entity.primary.UserSystemRole;
 import com.qtech.im.auth.repository.primary.management.UserSysRoleRepository;
 import com.qtech.im.auth.service.management.IUserRoleService;
 import org.springframework.beans.factory.annotation.Autowired;

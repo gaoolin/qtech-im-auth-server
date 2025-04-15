@@ -35,7 +35,7 @@ public class SecondaryJpaConfig {
             @Qualifier("secondaryDataSource") DataSource dataSource) {
         LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
         factory.setDataSource(dataSource);
-        factory.setPackagesToScan("com.qtech.im.auth.model.second");
+        factory.setPackagesToScan("com.qtech.im.auth.model.entity.second");
         factory.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
 
         Map<String, Object> properties = new HashMap<>();

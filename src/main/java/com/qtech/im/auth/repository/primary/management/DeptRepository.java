@@ -1,6 +1,7 @@
 package com.qtech.im.auth.repository.primary.management;
 
-import com.qtech.im.auth.model.primary.Department;
+import com.qtech.im.auth.model.entity.primary.Department;
+import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;

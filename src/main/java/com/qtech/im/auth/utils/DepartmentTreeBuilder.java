@@ -1,7 +1,7 @@
 package com.qtech.im.auth.utils;
 
-import com.qtech.im.auth.model.primary.Department;
-import com.qtech.im.auth.model.primary.DeptTree;
+import com.qtech.im.auth.model.entity.primary.Department;
+import com.qtech.im.auth.model.entity.primary.DeptTree;
 
 import java.util.ArrayList;
 import java.util.HashMap;

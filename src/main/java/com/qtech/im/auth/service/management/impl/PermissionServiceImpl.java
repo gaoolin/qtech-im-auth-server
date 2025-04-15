@@ -1,7 +1,7 @@
 package com.qtech.im.auth.service.management.impl;
 
-import com.qtech.im.auth.model.primary.Permission;
-import com.qtech.im.auth.model.primary.System;
+import com.qtech.im.auth.model.entity.primary.Permission;
+import com.qtech.im.auth.model.entity.primary.System;
 import com.qtech.im.auth.repository.primary.management.PermRepository;
 import com.qtech.im.auth.repository.primary.management.SystemRepository;
 import com.qtech.im.auth.service.management.IPermissionService;

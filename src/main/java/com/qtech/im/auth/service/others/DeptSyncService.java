@@ -1,7 +1,7 @@
 package com.qtech.im.auth.service.others;
 
 import com.qtech.im.auth.config.datasource.DataSourceContextHolder;
-import com.qtech.im.auth.model.primary.Department;
+import com.qtech.im.auth.model.entity.primary.Department;
 import com.qtech.im.auth.repository.primary.management.DeptRepository;
 import com.qtech.im.auth.repository.second.EmployeeRepository;
 import com.qtech.im.auth.utils.DelFlag;

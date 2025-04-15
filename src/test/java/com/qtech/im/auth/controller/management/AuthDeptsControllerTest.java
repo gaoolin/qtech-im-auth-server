@@ -1,6 +1,7 @@
 package com.qtech.im.auth.controller.management;
 
-import com.qtech.im.auth.model.primary.DeptTree;
+import com.qtech.im.auth.model.dto.management.DeptTreeNodeDTO;
+import com.qtech.im.auth.model.entity.primary.DeptTree;
 import com.qtech.im.auth.service.management.IDepartmentService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,14 +23,14 @@ class AuthDeptsControllerTest {
 
     @Test
     void testBuildDepartmentTree() {
-        List<DeptTree> deptTreeList = departmentService.getDeptTree();
-        printDeptTree(deptTreeList, 0);
+        List<DeptTreeNodeDTO> deptTree = departmentService.getDeptTree();
+        printDeptTree(deptTree, 0);
     }
 
-    private void printDeptTree(List<DeptTree> tree, int level) {
+    private void printDeptTree(List<DeptTreeNodeDTO> tree, int level) {
         if (tree == null) return;
         String prefix = "  ".repeat(level);
-        for (DeptTree node : tree) {
+        for (DeptTreeNodeDTO node : tree) {
             System.out.println(prefix + "- " + node.getName());
             printDeptTree(node.getChildren(), level + 1);
         }

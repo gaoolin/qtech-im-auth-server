@@ -1,16 +1,18 @@
 package com.qtech.im.auth.controller.management;
 
 import com.qtech.im.auth.common.Result;
-import com.qtech.im.auth.model.primary.Department;
+import com.qtech.im.auth.model.dto.management.DeptDTO;
+import com.qtech.im.auth.model.dto.management.DeptTreeNodeDTO;
 import com.qtech.im.auth.service.management.IDepartmentService;
+import com.qtech.im.auth.utils.web.PageResponse;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.util.MultiValueMap;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Objects;
+import java.util.List;
 
 /**
  * author :  gaozhilin
@@ -21,6 +23,7 @@ import java.util.Objects;
 @RestController
 @CrossOrigin(origins = "*")
 @RequestMapping("/auth/depts")
+@Validated
 public class AuthDeptsController {
     private final IDepartmentService deptService;
 
@@ -29,44 +32,42 @@ public class AuthDeptsController {
     }
 
     @GetMapping("/list")
-    public Page<Department> getDeptInfo(@RequestParam(required = false) String keyword,
-                                        @RequestParam(defaultValue = "0") int page,
-                                        @RequestParam(defaultValue = "10") int size) {
-        Sort sort = Sort.by("parentId").ascending().and(Sort.by("orderNum").ascending());
-        Pageable pageable = PageRequest.of(page, size, sort);
+    public PageResponse<DeptDTO> list(@RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "10") int size,
+                              @RequestParam(required = false) String keyword) {
+        Sort sort = Sort.by("id").ascending();
+        PageRequest pageable = PageRequest.of(page, size, sort);
+
+        Page<DeptDTO> pageResult;
         if (keyword != null && !keyword.isEmpty()) {
-            return deptService.getDeptInfoWithConditions(keyword, pageable);
+            pageResult = deptService.findDeptsWithConditions(keyword, pageable);
+        } else {
+            pageResult = deptService.getPage(pageable);
         }
-        return deptService.findAll(pageable);
+
+        return new PageResponse<>(pageResult);
     }
 
-    @PostMapping(value = "/add", consumes = "application/x-www-form-urlencoded") // 支持表单数据格式
-    public Result<?> addDept(@RequestBody MultiValueMap<String, String> formData) {
-        Department dept = new Department();
-        dept.setDeptName(formData.getFirst("deptName"));
-        dept.setLeader(formData.getFirst("leader"));
-        dept.setPhone(formData.getFirst("phone"));
-        dept.setEmail(formData.getFirst("email"));
-        dept.setRemark(formData.getFirst("remark"));
+    @GetMapping("/tree")
+    public Result<List<DeptTreeNodeDTO>> tree() {
+        return Result.success(deptService.getDeptTree());
+    }
 
-        deptService.createDept(dept);
+    @PostMapping
+    public Result<?> create(@Valid @RequestBody DeptDTO dto) {
+        deptService.createDept(dto);
         return Result.success();
     }
 
-    @PutMapping(value = "/update", consumes = "application/x-www-form-urlencoded")
-    public Result<?> updateDept(@RequestBody MultiValueMap<String, String> formData) {
-        Department dept = new Department();
-        dept.setId(Long.parseLong(Objects.requireNonNull(formData.getFirst("id"))));
-        dept.setParentId(Long.parseLong(Objects.requireNonNull(formData.getFirst("parentId"))));
-        dept.setDeptName(formData.getFirst("deptName"));
-        dept.setLeader(formData.getFirst("remark"));
-
-        deptService.updateDept(dept);
+    @PutMapping("/{id}")
+    public Result<?> update(@PathVariable Long id, @Valid @RequestBody DeptDTO dto) {
+        dto.setId(id);
+        deptService.updateDept(dto);
         return Result.success();
     }
 
-    @DeleteMapping("/delete/{id}")
-    public Result<?> removeDept(@PathVariable Long id) {
+    @DeleteMapping("/{id}")
+    public Result<?> delete(@PathVariable Long id) {
         deptService.deleteDept(id);
         return Result.success();
     }

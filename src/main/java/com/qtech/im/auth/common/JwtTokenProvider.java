@@ -1,12 +1,12 @@
 package com.qtech.im.auth.common;
 
-import com.qtech.im.auth.dto.GenerateUserTokenRequest;
 import com.qtech.im.auth.exception.biz.ParamIllegalException;
 import com.qtech.im.auth.exception.biz.TokenGenerationException;
-import com.qtech.im.auth.model.primary.OAuthClient;
-import com.qtech.im.auth.model.primary.Permission;
-import com.qtech.im.auth.model.primary.Role;
-import com.qtech.im.auth.model.primary.User;
+import com.qtech.im.auth.model.dto.GenerateUserTokenRequest;
+import com.qtech.im.auth.model.entity.primary.OAuthClient;
+import com.qtech.im.auth.model.entity.primary.Permission;
+import com.qtech.im.auth.model.entity.primary.Role;
+import com.qtech.im.auth.model.entity.primary.User;
 import com.qtech.im.auth.security.CustomUserDetails;
 import com.qtech.im.auth.service.api.IOAuthClientService;
 import com.qtech.im.auth.service.management.IUserService;
@@ -58,6 +58,7 @@ import static com.qtech.im.auth.utils.SysConstants.*;
 @Slf4j
 @Component
 public class JwtTokenProvider {
+
     @Value("${jwt.secret}")
     private String jwtSecret;
 
@@ -65,7 +66,7 @@ public class JwtTokenProvider {
     private long jwtExpiration; // access_token 有效期
 
     @Value("${jwt.refresh-expiration}")
-    private long jwtRefreshExpiration; // refresh_token 有效期（建议在 yml 里配置）
+    private long jwtRefreshExpiration; // refresh_token 有效期
 
     private Key jwtSecretKey;
 
@@ -85,79 +86,63 @@ public class JwtTokenProvider {
 
     // 生成 access_token
     public String generateTokenForUser(GenerateUserTokenRequest request) {
-        String empId = request.getEmployeeId();
-        String username = request.getUsername();
-        String sysName = request.getSystemName();
-        String clientId = request.getClientId();
-        if ((request.getUsername() == null && request.getEmployeeId() == null) || sysName == null || clientId == null) {
-            log.error(">>>>> Invalid parameters for access token: username={}, employeeId={}, systemName={}, clientId={}", username, empId, sysName, clientId);
-            throw new TokenGenerationException("Invalid parameters for access token");
-        }
-
+        validateRequest(request);
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpiration);
 
-        Optional<User> employeeOpt = userService.findUserByEmpId(empId);
+        Optional<User> employeeOpt = userService.findUserByEmpId(request.getEmployeeId());
         if (employeeOpt.isEmpty()) {
-            log.error(">>>>> User not found by employeeId: {}", empId);
+            log.error(">>>>> User not found by employeeId: {}", request.getEmployeeId());
             return null;
         }
 
         User user = employeeOpt.get();
-        Set<Permission> permissions = userService.getUserPerms(empId);
+        Set<Permission> permissions = userService.getUserPerms(request.getEmployeeId());
         Set<Role> roles = user.getRoles();
 
         try {
             return Jwts.builder()
                     .setSubject(user.getUsername())
-                    .claim(CLAIM_EMPLOYEE_ID, empId)
-                    .claim(CLAIM_USERNAME, username)
+                    .claim(CLAIM_EMPLOYEE_ID, request.getEmployeeId())
+                    .claim(CLAIM_USERNAME, request.getUsername())
                     .claim(CLAIM_ROLES, roles)
                     .claim(CLAIM_PERMISSIONS, permissions)
-                    .claim(CLAIM_SYSTEM, sysName)
-                    .claim(CLAIM_CLIENT_ID, clientId)
+                    .claim(CLAIM_SYSTEM, request.getSystemName())
+                    .claim(CLAIM_CLIENT_ID, request.getClientId())
                     .setIssuedAt(now)
                     .setExpiration(expiryDate)
                     .signWith(jwtSecretKey, SignatureAlgorithm.HS256)
                     .compact();
         } catch (Exception e) {
-            log.error(">>>>> Error generating access token for user: {}", empId, e);
-            return null;
+            log.error(">>>>> Error generating access token for user: {}", request.getEmployeeId(), e);
+            throw new TokenGenerationException("Failed to generate access token");
         }
     }
 
-    // ⭐ 生成 refresh_token（只保存 employeeId、system、clientId 等关键信息）
+    // 生成 refresh_token
     public String generateRefreshTokenForUser(GenerateUserTokenRequest request) {
-        String employeeId = request.getEmployeeId();
-        String username = request.getUsername();
-        String systemName = request.getSystemName();
-        String clientId = request.getClientId();
-
-        if ((request.getUsername() == null && request.getEmployeeId() == null) || systemName == null || clientId == null) {
-            log.error(">>>>> Invalid parameters for refresh token: username={} employeeId={}, systemName={}, clientId={}", username, employeeId, systemName, clientId);
-            return null;
-        }
-
+        validateRequest(request);
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtRefreshExpiration);
 
         try {
             return Jwts.builder()
-                    .setSubject(employeeId)
-                    .claim(CLAIM_EMPLOYEE_ID, employeeId)
-                    .claim(CLAIM_USERNAME, username)
-                    .claim(CLAIM_SYSTEM, systemName)
-                    .claim(CLAIM_CLIENT_ID, clientId)
+                    .setSubject(request.getEmployeeId())
+                    .claim(CLAIM_EMPLOYEE_ID, request.getEmployeeId())
+                    .claim(CLAIM_USERNAME, request.getUsername())
+                    .claim(CLAIM_SYSTEM, request.getSystemName())
+                    .claim(CLAIM_CLIENT_ID, request.getClientId())
                     .setIssuedAt(now)
                     .setExpiration(expiryDate)
                     .signWith(jwtSecretKey, SignatureAlgorithm.HS256)
                     .compact();
         } catch (Exception e) {
-            log.error(">>>>> Error generating refresh token for user: {}", employeeId, e);
-            return null;
+            log.error(">>>>> Error generating refresh token for user: {}", request.getEmployeeId(), e);
+            throw new TokenGenerationException("Failed to generate refresh token");
         }
     }
 
+    // 生成 client_token
     public String generateTokenForClient(String clientId) {
         if (clientId == null || clientId.isEmpty()) {
             log.error(">>>>> Invalid clientId for client credentials token");
@@ -185,88 +170,140 @@ public class JwtTokenProvider {
                     .compact();
         } catch (Exception e) {
             log.error(">>>>> Error generating client token: {}", clientId, e);
-            return null;
+            throw new TokenGenerationException("Failed to generate client token");
         }
     }
 
-    // 通用解析
-    private Claims parseClaims(String token) {
+    // 公共解析方法
+    private Claims parseClaims(String token) throws ExpiredJwtException {
         if (token == null || token.isEmpty()) {
             log.error(">>>>> Provided token is null or empty.");
-            return null;
+            throw new IllegalArgumentException("Token cannot be null or empty.");
         }
 
         try {
             return Jwts.parserBuilder()
                     .setSigningKey(jwtSecretKey)
+                    .setAllowedClockSkewSeconds(300) // 允许5分钟的时钟偏差
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
         } catch (ExpiredJwtException e) {
             log.warn(">>>>> JWT token expired: {}", e.getMessage());
-            return e.getClaims(); // 注意：过期也可以解析出来 claims
+            throw e; // 明确抛出过期异常
         } catch (Exception e) {
             log.error(">>>>> Failed to parse JWT token: {}", e.getMessage(), e);
-            return null;
+            throw new IllegalArgumentException("Invalid token.", e);
         }
     }
 
+    // 验证 Token
     public boolean validateToken(String token) {
         try {
-            Claims claims = parseClaims(token);
-            return claims != null;
+            parseClaims(token);
+            return true;
+        } catch (ExpiredJwtException e) {
+            log.warn(">>>>> Token has expired: {}", e.getMessage());
+            return false;
         } catch (Exception e) {
             log.warn(">>>>> Token validation failed: {}", e.getMessage());
             return false;
         }
     }
 
+    // 获取用户名
     public String getUsernameFromToken(String token) {
-        Claims claims = parseClaims(token);
-        return claims != null ? claims.getSubject() : null;
-    }
-
-    public String getClientIdFromToken(String token) {
-        Claims claims = parseClaims(token);
-        return claims != null ? (String) claims.get(CLAIM_CLIENT_ID) : null;
-    }
-
-    public String getEmployeeIdFromToken(String token) {
-        Claims claims = parseClaims(token);
-        return claims != null ? (String) claims.get(CLAIM_EMPLOYEE_ID) : null;
-    }
-
-    public List<String> getRolesFromToken(String token) {
-        Claims claims = parseClaims(token);
-        if (claims == null) return Collections.emptyList();
-
-        Object roles = claims.get(CLAIM_ROLES);
-        if (roles instanceof List<?>) {
-            return ((List<?>) roles).stream()
-                    .map(Object::toString)
-                    .collect(Collectors.toList());
+        try {
+            Claims claims = parseClaims(token);
+            return claims.getSubject();
+        } catch (Exception e) {
+            log.warn(">>>>> Failed to extract username from token: {}", e.getMessage());
+            return null;
         }
-        return Collections.emptyList();
     }
 
+    // 获取 Client ID
+    public String getClientIdFromToken(String token) {
+        try {
+            Claims claims = parseClaims(token);
+            return (String) claims.get(CLAIM_CLIENT_ID);
+        } catch (Exception e) {
+            log.warn(">>>>> Failed to extract client ID from token: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    // 获取 Employee ID
+    public String getEmployeeIdFromToken(String token) {
+        try {
+            Claims claims = parseClaims(token);
+            return (String) claims.get(CLAIM_EMPLOYEE_ID);
+        } catch (Exception e) {
+            log.warn(">>>>> Failed to extract employee ID from token: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    // 获取角色列表
+    public List<String> getRolesFromToken(String token) {
+        try {
+            Claims claims = parseClaims(token);
+            Object roles = claims.get(CLAIM_ROLES);
+            if (roles instanceof List<?>) {
+                return ((List<?>) roles).stream()
+                        .map(Object::toString)
+                        .collect(Collectors.toList());
+            }
+            return Collections.emptyList();
+        } catch (Exception e) {
+            log.warn(">>>>> Failed to extract roles from token: {}", e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
+    // 获取过期时间
     public Date getExpirationDateFromToken(String token) {
-        Claims claims = parseClaims(token);
-        return claims != null ? claims.getExpiration() : null;
+        try {
+            Claims claims = parseClaims(token);
+            return claims.getExpiration();
+        } catch (Exception e) {
+            log.warn(">>>>> Failed to extract expiration date from token: {}", e.getMessage());
+            return null;
+        }
     }
 
+    // 获取用户详情
     public CustomUserDetails getUserDetailsFromToken(String token) {
-        Claims claims = parseClaims(token);
-        if (claims == null) return null;
+        try {
+            Claims claims = parseClaims(token);
+            Long id = claims.getId() != null ? Long.parseLong(claims.getId()) : null;
+            String employeeId = claims.get(CLAIM_EMPLOYEE_ID) != null ? claims.get(CLAIM_EMPLOYEE_ID).toString() : null;
+            String username = claims.getSubject() != null ? claims.getSubject() : null;
 
-        Long id = claims.getId() != null ? Long.parseLong(claims.getId()) : null;
-        String employeeId = claims.get(CLAIM_EMPLOYEE_ID) != null ? claims.get(CLAIM_EMPLOYEE_ID).toString() : null;
-        String username = claims.getSubject() != null ? claims.getSubject() : null;
-
-        return new CustomUserDetails(id, employeeId, username, null, true, Collections.emptySet());
+            return new CustomUserDetails(id, employeeId, username, null, true, Collections.emptySet());
+        } catch (Exception e) {
+            log.warn(">>>>> Failed to extract user details from token: {}", e.getMessage());
+            return null;
+        }
     }
 
+    // 获取系统名称
     public String getSystemNameFromToken(String token) {
-        Claims claims = parseClaims(token);
-        return claims != null ? (String) claims.get(CLAIM_SYSTEM) : null;
+        try {
+            Claims claims = parseClaims(token);
+            return (String) claims.get(CLAIM_SYSTEM);
+        } catch (Exception e) {
+            log.warn(">>>>> Failed to extract system name from token: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    // 请求校验
+    private void validateRequest(GenerateUserTokenRequest request) {
+        if ((request.getUsername() == null && request.getEmployeeId() == null) ||
+                request.getSystemName() == null || request.getClientId() == null) {
+            log.error(">>>>> Invalid parameters for token generation: {}", request);
+            throw new IllegalArgumentException("Invalid parameters for token generation.");
+        }
     }
 }

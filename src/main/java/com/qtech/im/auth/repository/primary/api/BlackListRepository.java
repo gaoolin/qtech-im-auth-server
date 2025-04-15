@@ -1,6 +1,6 @@
 package com.qtech.im.auth.repository.primary.api;
 
-import com.qtech.im.auth.model.primary.SystemConfig;
+import com.qtech.im.auth.model.entity.primary.SystemConfig;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

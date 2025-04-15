@@ -1,8 +1,8 @@
 package com.qtech.im.auth.controller.api;
 
 import com.qtech.im.auth.common.Result;
-import com.qtech.im.auth.model.primary.Permission;
-import com.qtech.im.auth.model.primary.Role;
+import com.qtech.im.auth.model.entity.primary.Permission;
+import com.qtech.im.auth.model.entity.primary.Role;
 import com.qtech.im.auth.service.management.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

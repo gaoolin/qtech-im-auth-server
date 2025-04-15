@@ -64,8 +64,8 @@ spring:
 
 jwt:
   secret: Qw3nTf6yHp9kLmO0Rs2vBuXzCeJ5tWa1  # 用于签名和验证 JWT
-  expiration: 3600       # Token 过期时间（单位：秒）
-  refresh-expiration: 86400  # Refresh Token 过期时间（单位：秒）
+  expiration: 3600000       # Token 过期时间1小时（单位：毫秒）
+  refresh-expiration: 86400000  # Refresh Token 过期时间1天（单位：毫秒）
 
 logging:
   config: classpath:logback-spring.xml

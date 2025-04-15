@@ -1,6 +1,6 @@
 package com.qtech.im.auth.service.api.impl;
 
-import com.qtech.im.auth.model.primary.User;
+import com.qtech.im.auth.model.entity.primary.User;
 import com.qtech.im.auth.repository.primary.management.UserRepository;
 import com.qtech.im.auth.security.CustomUserDetails;
 import org.springframework.security.core.userdetails.UserDetails;

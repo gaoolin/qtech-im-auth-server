@@ -1,8 +1,8 @@
 package com.qtech.im.auth.service.management.impl;
 
-import com.qtech.im.auth.model.primary.Permission;
-import com.qtech.im.auth.model.primary.Role;
-import com.qtech.im.auth.model.primary.RoleSystemPermission;
+import com.qtech.im.auth.model.entity.primary.Permission;
+import com.qtech.im.auth.model.entity.primary.Role;
+import com.qtech.im.auth.model.entity.primary.RoleSystemPermission;
 import com.qtech.im.auth.repository.primary.management.RoleSysPermRepository;
 import com.qtech.im.auth.service.management.IRolePermissionService;
 import org.springframework.beans.factory.annotation.Autowired;

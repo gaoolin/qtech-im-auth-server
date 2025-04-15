@@ -46,7 +46,7 @@ public class DataSourceAspect {
             dataSource = clazz.getAnnotation(DataSource.class);
         }
 
-        String key = dataSource != null ? dataSource.value().name() : properties.getPrimary();  // 使用枚举的 name
+        String key = dataSource != null ? dataSource.value().getKey() : properties.getPrimary();  // 使用枚举的 name
         boolean strict = dataSource != null && dataSource.strict();
 
         if (!available.contains(key)) {

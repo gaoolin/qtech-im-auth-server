@@ -1,7 +1,7 @@
 package com.qtech.im.auth.controller.management;
 
 import com.qtech.im.auth.common.Result;
-import com.qtech.im.auth.model.primary.Role;
+import com.qtech.im.auth.model.entity.primary.Role;
 import com.qtech.im.auth.service.management.IRoleService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,6 +1,6 @@
 package com.qtech.im.auth.service.api.rabc.impl;
 
-import com.qtech.im.auth.model.primary.SystemConfig;
+import com.qtech.im.auth.model.entity.primary.SystemConfig;
 import com.qtech.im.auth.repository.primary.api.rabc.SysConfigRepository;
 import com.qtech.im.auth.repository.primary.api.rabc.SysConfigSpecification;
 import com.qtech.im.auth.service.api.rabc.ISysConfigService;

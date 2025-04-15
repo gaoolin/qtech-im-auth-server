@@ -1,9 +1,9 @@
 package com.qtech.im.auth.service.api.impl;
 
 import com.qtech.im.auth.common.JwtTokenProvider;
-import com.qtech.im.auth.dto.GenerateClientTokenRequest;
-import com.qtech.im.auth.dto.GenerateUserTokenRequest;
-import com.qtech.im.auth.dto.TokenResponse;
+import com.qtech.im.auth.model.dto.GenerateClientTokenRequest;
+import com.qtech.im.auth.model.dto.GenerateUserTokenRequest;
+import com.qtech.im.auth.model.dto.TokenResponse;
 import com.qtech.im.auth.exception.biz.TokenGenerationException;
 import com.qtech.im.auth.service.api.ITokenService;
 import lombok.RequiredArgsConstructor;

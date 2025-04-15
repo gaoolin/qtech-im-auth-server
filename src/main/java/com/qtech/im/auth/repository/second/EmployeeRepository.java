@@ -1,6 +1,6 @@
 package com.qtech.im.auth.repository.second;
 
-import com.qtech.im.auth.model.second.Employee;
+import com.qtech.im.auth.model.entity.second.Employee;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
