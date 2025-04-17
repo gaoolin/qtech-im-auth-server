@@ -1,6 +1,6 @@
 package com.qtech.im.auth.model.entity.primary;
 
-import com.qtech.im.auth.model.web.BaseModel;
+import com.qtech.im.auth.utils.web.BaseModel;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

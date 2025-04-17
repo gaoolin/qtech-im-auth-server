@@ -1,7 +1,8 @@
 package com.qtech.im.auth.mapper;
 
-import com.qtech.im.auth.model.dto.management.DeptDTO;
-import com.qtech.im.auth.model.dto.management.DeptTreeNodeDTO;
+import com.qtech.im.auth.model.dto.DeptDTO;
+import com.qtech.im.auth.model.dto.DeptTreeNodeDTO;
+import com.qtech.im.auth.model.dto.DeptViewDTO;
 import com.qtech.im.auth.model.entity.primary.Department;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

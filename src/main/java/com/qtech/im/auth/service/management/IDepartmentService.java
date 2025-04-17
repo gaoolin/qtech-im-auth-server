@@ -1,8 +1,8 @@
 package com.qtech.im.auth.service.management;
 
-import com.qtech.im.auth.common.Result;
-import com.qtech.im.auth.model.dto.management.DeptDTO;
-import com.qtech.im.auth.model.dto.management.DeptTreeNodeDTO;
+import com.qtech.im.auth.model.dto.DeptDTO;
+import com.qtech.im.auth.model.dto.DeptTreeNodeDTO;
+import com.qtech.im.auth.model.dto.DeptViewDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
@@ -20,6 +20,7 @@ public interface IDepartmentService {
     DeptDTO updateDept(DeptDTO dept);
     void deleteDept(Long id);
     List<DeptTreeNodeDTO> getDeptTree();
-
     Page<DeptDTO> findDeptsWithConditions(String keyword, PageRequest pageable);
+    Page<DeptViewDTO> findDeptViews(PageRequest pageable);
+    Page<DeptViewDTO> findDeptViewsWithConditions(String keyword, PageRequest pageable);
 }

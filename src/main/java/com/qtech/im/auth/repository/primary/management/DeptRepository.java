@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -22,4 +23,7 @@ public interface DeptRepository extends JpaRepository<Department, Long>, JpaSpec
 
     @Query("SELECT d FROM Department d WHERE d.deptName = :deptName AND d.parentId = :parentId")
     Optional<Department> findByDeptNameAndParentId(String deptName, Long parentId);
+
+    @Query("SELECT d.parentId AS parentId, COUNT(d.id) AS cnt FROM Department d GROUP BY d.parentId")
+    List<Object[]> countChildrenGroupByParent();
 }

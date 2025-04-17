@@ -1,7 +1,6 @@
-package com.qtech.im.auth.model.dto.management;
+package com.qtech.im.auth.model.dto;
 
 import com.qtech.im.auth.utils.TreeNode;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 

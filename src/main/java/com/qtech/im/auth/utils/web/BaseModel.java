@@ -1,4 +1,4 @@
-package com.qtech.im.auth.model.web;
+package com.qtech.im.auth.utils.web;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.qtech.im.auth.utils.DelFlag;

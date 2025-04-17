@@ -11,6 +11,7 @@
     <script src="/js/bootstrap.bundle.min.js"></script>
     <script src="/js/request.js"></script>
     <script src="/js/common.js"></script>
+    <script src="/js/pagination.js"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}"/>
     <style>
         .toast-container {
@@ -108,7 +109,7 @@
         </tbody>
     </table>
     <div class="d-flex justify-content-center mt-3">
-        <ul class="pagination" id="pagination">
+        <ul class="pagination" id="pagination" style="display: none;">
             <!-- 分页按钮会动态生成 -->
         </ul>
     </div>
@@ -211,6 +212,7 @@
         </div>
     </div>
 </div>
+
 <script th:inline="javascript">
     /*<![CDATA[*/
     window.accessToken = /*[[${access_token}]]*/ '';
@@ -218,54 +220,54 @@
 
     let currentPage = 0;
     let pageSize = 10;
-    let deptTableBody = $("#deptTableBody");
+    const deptTableBody = $("#deptTableBody");
 
     function loadDepts(page = currentPage, size = pageSize, keyword = $("#searchKeyword").val()) {
         page = parseInt(page, 10);
         size = parseInt(size, 10);
+
         deptTableBody.html('<tr><td colspan="7" class="text-center">加载中...</td></tr>');
-        request.get("/depts/list", {keyword, page, size})
+        request.get("/depts/list", {keyword, page, size}, {headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')}})
             .then(response => {
-                console.log(response)
-                let depts = response.content || [];
-                let totalPages = response.totalPages || 0;
-                let totalElements = response.totalElements || 0;
-
-                deptTableBody.empty();
-                if (depts.length > 0) {
-                    depts.forEach(dept => {
-                        deptTableBody.append(`
-                                <tr>
-                                    <td>${dept.deptName}</td>
-                                    <td>${dept.remark}</td>
-                                    <td>
-                                        <button class="btn btn-primary btn-sm" onclick="showEditDeptModal(${JSON.stringify(dept).replace(/"/g, '&quot;')})">编辑</button>
-                                        <button class="btn btn-danger btn-sm" onclick="deleteDept(${dept.id})">删除</button>
-                                    </td>
-                                </tr>
-                           `);
-                    });
+                if (response.success) {
+                    const {content, totalPages, totalElements} = response.data;
+                    renderDeptTable(content || [], totalPages || 0, totalElements || 0, page);
                 } else {
-                    deptTableBody.html(`
-                            <tr>
-                                <td colspan="5" class="text-center">暂无数据</td>
-                            </tr>
-                        `);
+                    showToast('部门信息加载失败，请稍后再试', 'danger');
                 }
-                updatePagination(page, totalPages, totalElements)
-
             })
             .catch(error => {
                 showToast('部门信息加载失败，请稍后再试', 'danger');
                 console.error(error);
-            })
+            });
+    }
+
+    function renderDeptTable(depts, totalPages, totalElements, currentPage) {
+        deptTableBody.empty();
+        if (depts.length > 0) {
+            const rows = depts.map(dept => `                <tr>
+            <td>${escapeHtml(dept.deptName)}</td>
+            <td>${escapeHtml(dept.remark)}</td>
+            <td>
+                <button class="btn btn-primary btn-sm" onclick="showEditDeptModal(${JSON.stringify(dept).replace(/"/g, '&quot;')})">编辑</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteDept(${dept.id})">删除</button>
+            </td>
+        </tr>
+        `).join('');
+            deptTableBody.append(rows);
+        } else {
+            deptTableBody.html('<tr><td colspan="5" class="text-center">暂无数据</td></tr>');
+        }
+        updatePagination(currentPage, totalPages, totalElements, loadDepts); // 传递回调函数
     }
 
     function addDept() {
         const formData = $("#addDeptForm").serialize();
-        request.post("/depts/add", formData)
+        if (!validateForm(formData)) return;
+
+        request.post("/depts/add", formData, {headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')}})
             .then(response => {
-                if (response.code === 200) {
+                if (response.success) {
                     showToast('部门信息保存成功', 'success');
                     $("#addDeptModal").modal('hide');
                     loadDepts();
@@ -276,7 +278,7 @@
             .catch(error => {
                 showToast('部门信息保存失败，请稍后再试', 'danger');
                 console.error(error);
-            })
+            });
     }
 
     function showEditDeptModal(dept) {
@@ -289,9 +291,11 @@
     function editDept() {
         const id = $("#editDeptForm").find("input[name='id']").val();
         const formData = $("#editDeptForm").serialize();
-        request.put("/depts/update/" + id, formData)
+        if (!validateForm(formData)) return;
+
+        request.put(`/depts/update/${id}`, formData, {headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')}})
             .then(response => {
-                if (response.code === 200) {
+                if (response.success) {
                     showToast('部门信息更新成功', 'success');
                     $("#editDeptModal").modal('hide');
                     loadDepts();
@@ -302,63 +306,43 @@
             .catch(error => {
                 showToast('部门信息更新失败，请稍后再试', 'danger');
                 console.error(error);
-            })
+            });
     }
 
     function deleteDept(deptId) {
-        if (!confirm('确定要删除该部门吗？')) {
-            request.delete("/depts/delete/" + deptId)
-                .then(response => {
-                    if (response.code === 200) {
-                        showToast('部门信息删除成功', 'success');
-                        loadDepts();
-                    } else {
-                        showToast('部门信息删除失败，请稍后再试', 'danger');
-                    }
-                })
-                .catch(error => {
+        if (!confirm('确定要删除该部门吗？')) return;
+
+        request.delete(`/depts/delete/${deptId}`, {}, {headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')}})
+            .then(response => {
+                if (response.success) {
+                    showToast('部门信息删除成功', 'success');
+                    loadDepts();
+                } else {
                     showToast('部门信息删除失败，请稍后再试', 'danger');
-                })
-        }
+                }
+            })
+            .catch(error => {
+                showToast('部门信息删除失败，请稍后再试', 'danger');
+                console.error(error);
+            });
     }
 
-    function updatePagination(currentPage, totalPages, totalElements) {
-        currentPage = parseInt(currentPage, 10);
-        const pagination = $("#pagination");
-        pagination.empty();
-
-        let paginationHtml = '';
-
-        if (currentPage > 0) {
-            paginationHtml += `
-                <li class="page-item">
-                    <a class="page-link" href="javascript:void(0)" onclick="loadDepts(${currentPage - 1})">上一页</a>
-                </li>
-            `;
+    function validateForm(formData) {
+        const data = new URLSearchParams(formData);
+        if (!data.get('name')) {
+            showToast('部门名称不能为空', 'warning');
+            return false;
         }
-
-        for (let i = 0; i < totalPages; i++) {
-            paginationHtml += `
-                <li class="page-item ${i === currentPage ? 'active' : ''}">
-                    <a class="page-link" href="javascript:void(0)" onclick="loadDepts(${i})">${i + 1}</a>
-                </li>
-            `;
-        }
-
-        if (currentPage < totalPages - 1) {
-            paginationHtml += `
-                <li class="page-item">
-                    <a class="page-link" href="javascript:void(0)" onclick="loadDepts(${currentPage + 1})">下一页</a>
-                </li>
-            `;
-        }
-
-        pagination.html(paginationHtml);
+        return true;
     }
 
     $(document).ready(function () {
         loadDepts();
     });
 </script>
+
+
+</body>
+</html>
 </body>
 </html>

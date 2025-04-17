@@ -1,8 +1,9 @@
 package com.qtech.im.auth.controller.management;
 
 import com.qtech.im.auth.common.Result;
-import com.qtech.im.auth.model.dto.management.DeptDTO;
-import com.qtech.im.auth.model.dto.management.DeptTreeNodeDTO;
+import com.qtech.im.auth.model.dto.DeptDTO;
+import com.qtech.im.auth.model.dto.DeptTreeNodeDTO;
+import com.qtech.im.auth.model.dto.DeptViewDTO;
 import com.qtech.im.auth.service.management.IDepartmentService;
 import com.qtech.im.auth.utils.web.PageResponse;
 import jakarta.validation.Valid;
@@ -32,9 +33,9 @@ public class AuthDeptsController {
     }
 
     @GetMapping("/list")
-    public PageResponse<DeptDTO> list(@RequestParam(defaultValue = "0") int page,
-                              @RequestParam(defaultValue = "10") int size,
-                              @RequestParam(required = false) String keyword) {
+    public Result<PageResponse<DeptDTO>> list(@RequestParam(defaultValue = "0") int page,
+                                              @RequestParam(defaultValue = "10") int size,
+                                              @RequestParam(required = false) String keyword) {
         Sort sort = Sort.by("id").ascending();
         PageRequest pageable = PageRequest.of(page, size, sort);
 
@@ -44,8 +45,26 @@ public class AuthDeptsController {
         } else {
             pageResult = deptService.getPage(pageable);
         }
+        PageResponse<DeptDTO> pageResponse = PageResponse.from(pageResult);
+        return Result.success(pageResponse);
+    }
 
-        return new PageResponse<>(pageResult);
+    @GetMapping("/view")
+    public Result<PageResponse<DeptViewDTO>> getDepartmentViews(@RequestParam(defaultValue = "0") int page,
+                                                                @RequestParam(defaultValue = "10") int size,
+                                                                @RequestParam(required = false) String keyword) {
+
+        Sort sort = Sort.by("id").ascending();
+        PageRequest pageable = PageRequest.of(page, size, sort);
+
+        Page<DeptViewDTO> pageResult;
+        if (keyword != null && !keyword.isEmpty()) {
+            pageResult = deptService.findDeptViewsWithConditions(keyword, pageable);
+        } else {
+            pageResult = deptService.findDeptViews(pageable);
+        }
+        PageResponse<DeptViewDTO> pageResponse = PageResponse.from(pageResult);
+        return Result.success(pageResponse);
     }
 
     @GetMapping("/tree")

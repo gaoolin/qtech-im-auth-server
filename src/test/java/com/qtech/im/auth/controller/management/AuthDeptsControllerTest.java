@@ -1,7 +1,6 @@
 package com.qtech.im.auth.controller.management;
 
-import com.qtech.im.auth.model.dto.management.DeptTreeNodeDTO;
-import com.qtech.im.auth.model.entity.primary.DeptTree;
+import com.qtech.im.auth.model.dto.DeptTreeNodeDTO;
 import com.qtech.im.auth.service.management.IDepartmentService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

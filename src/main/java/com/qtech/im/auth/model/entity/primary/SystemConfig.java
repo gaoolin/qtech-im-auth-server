@@ -1,7 +1,7 @@
 package com.qtech.im.auth.model.entity.primary;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.qtech.im.auth.model.web.BaseModel;
+import com.qtech.im.auth.utils.web.BaseModel;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
