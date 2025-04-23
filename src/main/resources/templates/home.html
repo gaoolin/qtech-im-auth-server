@@ -30,15 +30,15 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
-                    <a class="nav-link active" href="/auth/home">首页</a>
+                    <a class="nav-link" href="/admin/home">首页</a>
                 </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownUsers" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         用户管理
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdownUsers">
-                        <li><a class="dropdown-item" href="/auth/users">用户列表</a></li>
-                        <li><a class="dropdown-item" href="/auth/user-groups">用户组</a></li>
+                        <li><a class="dropdown-item" href="/admin/users">用户列表</a></li>
+                        <li><a class="dropdown-item" href="/admin/user-groups">用户组</a></li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown">
@@ -46,8 +46,8 @@
                         角色管理
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdownRoles">
-                        <li><a class="dropdown-item" href="/auth/roles">角色列表</a></li>
-                        <li><a class="dropdown-item" href="/auth/role-permissions">角色权限</a></li>
+                        <li><a class="dropdown-item" href="/admin/roles">角色列表</a></li>
+                        <li><a class="dropdown-item" href="/admin/role-permissions">角色权限</a></li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown">
@@ -55,8 +55,8 @@
                         系统管理
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdownSystems">
-                        <li><a class="dropdown-item" href="/auth/systems">系统列表</a></li>
-                        <li><a class="dropdown-item" href="/auth/system-config">系统配置</a></li>
+                        <li><a class="dropdown-item" href="/admin/systems">系统列表</a></li>
+                        <li><a class="dropdown-item" href="/admin/system-config">系统配置</a></li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown">
@@ -64,27 +64,28 @@
                         权限管理
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdownPermissions">
-                        <li><a class="dropdown-item" href="/auth/permissions">权限列表</a></li>
-                        <li><a class="dropdown-item" href="/auth/permission-groups">权限组</a></li>
+                        <li><a class="dropdown-item" href="/admin/permissions">权限列表</a></li>
+                        <li><a class="dropdown-item" href="/admin/permission-groups">权限组</a></li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownDepts" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle active" href="#" id="navbarDropdownDepts" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         部门管理
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdownDepts">
-                        <li><a class="dropdown-item" href="/auth/depts">部门列表</a></li>
-                        <li><a class="dropdown-item" href="/auth/dept-users">部门用户</a></li>
+                        <li><a class="dropdown-item" href="/admin/depts">组织统计</a></li>
+                        <li><a class="dropdown-item" href="/admin/depts-level">部门层级信息</a></li>
+                        <li><a class="dropdown-item" href="/admin/depts-list">部门列表</a></li>
+                        <li><a class="dropdown-item" href="/admin/dept-users">部门用户</a></li>
                     </ul>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/auth/logout" onclick="showLogoutConfirm(); return false;">退出登录</a>
+                    <a class="nav-link" href="/admin/logout" onclick="showLogoutConfirm(); return false;">退出登录</a>
                 </li>
             </ul>
         </div>
     </div>
 </nav>
-
 <div class="container mt-4">
     <h2>欢迎进入认证中心，<span th:text="${username}">管理员</span>！</h2>
     <div class="row mt-4">
@@ -93,7 +94,7 @@
                 <div class="card-body">
                     <h5 class="card-title">用户管理</h5>
                     <p class="card-text">管理系统用户，支持新增、修改、删除和查询。</p>
-                    <a href="/auth/users" class="btn btn-primary">进入</a>
+                    <a href="/admin/users" class="btn btn-primary">进入</a>
                 </div>
             </div>
         </div>
@@ -102,7 +103,7 @@
                 <div class="card-body">
                     <h5 class="card-title">角色管理</h5>
                     <p class="card-text">管理系统角色及其权限分配。</p>
-                    <a href="/auth/roles" class="btn btn-primary">进入</a>
+                    <a href="/admin/roles" class="btn btn-primary">进入</a>
                 </div>
             </div>
         </div>
@@ -111,7 +112,7 @@
                 <div class="card-body">
                     <h5 class="card-title">权限管理</h5>
                     <p class="card-text">查看和维护系统权限树及分配关系。</p>
-                    <a href="/auth/permissions" class="btn btn-primary">进入</a>
+                    <a href="/admin/permissions" class="btn btn-primary">进入</a>
                 </div>
             </div>
         </div>

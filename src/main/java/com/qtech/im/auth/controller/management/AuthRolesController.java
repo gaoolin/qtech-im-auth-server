@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 @Slf4j
 @CrossOrigin(origins = "*")
-@RequestMapping("/auth/roles")
+@RequestMapping("/admin/roles")
 public class AuthRolesController {
 
     @Autowired

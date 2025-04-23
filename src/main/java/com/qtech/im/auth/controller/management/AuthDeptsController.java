@@ -6,10 +6,12 @@ import com.qtech.im.auth.model.dto.DeptTreeNodeDTO;
 import com.qtech.im.auth.model.dto.DeptViewDTO;
 import com.qtech.im.auth.service.management.IDepartmentService;
 import com.qtech.im.auth.utils.web.PageResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +25,7 @@ import java.util.List;
  */
 @RestController
 @CrossOrigin(origins = "*")
-@RequestMapping("/auth/depts")
+@RequestMapping("/admin/depts")
 @Validated
 public class AuthDeptsController {
     private final IDepartmentService deptService;

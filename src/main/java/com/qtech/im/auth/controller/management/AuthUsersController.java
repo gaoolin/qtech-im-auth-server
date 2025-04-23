@@ -27,7 +27,7 @@ import java.time.LocalDateTime;
 @Controller
 @Slf4j
 @CrossOrigin(origins = "*")
-@RequestMapping("/auth/users")
+@RequestMapping("/admin/users")
 public class AuthUsersController {
     @Autowired
     private IUserService userService;

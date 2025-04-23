@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}" th:remove="tag"/>
+    <title>页面未找到 - QTECH 智能制造认证中心</title>
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/css/bootstrap.min.css"/>
+    <style>
+        body {
+            background: linear-gradient(to right, #f0f4c3, #ffffff);
+            font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #555;
+        }
+        .error-box {
+            text-align: center;
+            max-width: 600px;
+        }
+        .error-icon {
+            font-size: 80px;
+            color: #ffc107;
+        }
+        .btn-warning {
+            border-radius: 30px;
+            padding: 10px 30px;
+        }
+    </style>
+</head>
+<body>
+<div class="error-box">
+    <div class="error-icon">⚠️</div>
+    <h3>出错了！</h3>
+    <p th:utext="${message != null ? message : '系统发生未知错误，请稍后重试。'}"></p>
+    <a href="/auth/" class="btn btn-warning mt-3">返回首页</a>
+</div>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    window.accessToken = /*[[${access_token}]]*/ '';
+    /*]]>*/
+    document.addEventListener('DOMContentLoaded', function () {
+        if (window.accessToken) {
+            setAccessTokenCookie(window.accessToken);
+        }
+    });
+
+    window.addEventListener('beforeunload', clearAccessTokenCookie);
+    window.addEventListener('unload', clearAccessTokenCookie);
+    window.addEventListener('error', function (event) {
+        clearAccessTokenCookie();
+        console.error('An error occurred:', event.message);
+    });
+
+    function setAccessTokenCookie(token) {
+        document.cookie = 'access_token=' + encodeURIComponent(token) + '; Secure; HttpOnly; SameSite=Strict; path=/;';
+    }
+
+    function clearAccessTokenCookie() {
+        document.cookie = 'access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; Secure; HttpOnly; SameSite=Strict; path=/;';
+    }
+</script>
+</body>
+</html>

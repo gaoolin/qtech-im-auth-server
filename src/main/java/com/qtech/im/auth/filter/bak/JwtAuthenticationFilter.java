@@ -1,4 +1,4 @@
-package com.qtech.im.auth.config;
+package com.qtech.im.auth.filter.bak;
 
 import com.qtech.im.auth.common.JwtTokenProvider;
 import jakarta.servlet.FilterChain;
@@ -109,7 +109,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+
     // 从请求头获取 token
+
     /**
      * 从请求头中获取 JWT token。
      *

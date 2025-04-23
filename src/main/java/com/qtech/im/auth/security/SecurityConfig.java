@@ -1,4 +1,4 @@
-package com.qtech.im.auth.config;
+package com.qtech.im.auth.security;
 
 import com.qtech.im.auth.common.JwtTokenProvider;
 import org.springframework.context.annotation.Bean;
@@ -22,6 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * SecurityFilterChain：Spring Security 3 引入了 SecurityFilterChain 来代替 WebSecurityConfigurerAdapter。我们使用 @Bean 注解创建了一个配置 SecurityFilterChain，并在 http 对象上配置安全策略。
  * addFilterBefore：通过 addFilterBefore 方法，我们在认证过滤器 UsernamePasswordAuthenticationFilter 前添加了 JwtAuthenticationFilter，用来解析和验证 JWT。
  */
+/*
 @Configuration
 public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
@@ -30,7 +31,8 @@ public class SecurityConfig {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
-    /**
+    */
+/**
      * 禁用 CSRF 是必要的吗？ 通常情况下，建议仅在以下场景禁用 CSRF：
      * API 是无状态的（使用 Bearer Token 或 API Key 身份验证）。
      * 接口仅用于服务器间调用。
@@ -51,21 +53,21 @@ public class SecurityConfig {
      * return http.build();
      * }
      * }
-     */
+     *//*
+
     // 使用 SecurityFilterChain 代替 WebSecurityConfigurerAdapter
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)  // 禁用 CSRF，因为我们使用 JWT 进行身份验证
                 .authorizeHttpRequests(auth -> auth.requestMatchers(
+                                "/",
+                                "/auth",
                                 "/auth/login",  // 允许访问所有包含 'login' 的路径
                                 "/auth/logout",
                                 "/auth/home",
-                                "/auth/users",
-                                "/auth/roles",
-                                "/auth/systems",
-                                "/auth/permissions",
-                                "/auth/depts",
+                                "/auth/error",
+                                "/auth/404",
                                 "/static/**",    // 允许访问静态资源
                                 "/resources/**",
                                 "/public/**",
@@ -73,9 +75,27 @@ public class SecurityConfig {
                                 "/css/**",
                                 "/js/**",
                                 "/images/**")  // 允许访问资源目录 允许特定接口 允许公开访问登录接口
-                        .permitAll().anyRequest().authenticated()  // 其他接口需要认证
+                        .permitAll()
+                        .requestMatchers(
+                                "/auth/users",
+                                "/auth/roles",
+                                "/auth/systems",
+                                "/auth/permissions",
+                                "/auth/depts")
+                        .authenticated()
                 )
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class); // 添加 JWT 认证过滤器;
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)  // 添加 JWT 认证过滤器;
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            // 如果用户未认证，重定向到登录页面
+                            response.sendRedirect("/auth/login");
+                        })
+                        // .accessDeniedHandler((request, response, accessDeniedException) -> {
+                        //     // 如果用户认证通过，但权限不足，重定向到错误页面
+                        //     response.sendRedirect("/auth/error");
+                        // })
+                        .accessDeniedPage("/auth/error")
+                );
 
         return http.build();
     }
@@ -91,4 +111,4 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
-}
+}*/

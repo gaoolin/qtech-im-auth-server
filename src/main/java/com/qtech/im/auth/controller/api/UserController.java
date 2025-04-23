@@ -20,7 +20,7 @@ import java.util.Set;
 @RestController
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*", maxAge = 3600)
-@RequestMapping("/auth/users")
+@RequestMapping("/admin/users")
 public class UserController {
     @Autowired
     private final IUserService userService;

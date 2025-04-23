@@ -20,11 +20,10 @@ import org.springframework.web.bind.annotation.*;
  * date   :  2025/03/18 13:52:34
  * desc   :  登录控制器
  */
-
 @Controller
 @Slf4j
 @CrossOrigin(origins = "*")
-@RequestMapping("/auth")
+@RequestMapping("/admin")
 public class AuthCenterController {
     private final JwtTokenProvider jwtTokenProvider;
     private final IUserService userService;
@@ -45,7 +44,7 @@ public class AuthCenterController {
                           @RequestParam String password,
                           @RequestParam String systemName,
                           @RequestParam String clientId,
-                          HttpServletRequest request) {
+                          HttpServletResponse response) {
         GenerateUserTokenRequest generateUserTokenRequest = new GenerateUserTokenRequest();
         generateUserTokenRequest.setEmployeeId(username);
         generateUserTokenRequest.setSystemName(systemName);
@@ -55,14 +54,27 @@ public class AuthCenterController {
             String accessToken = jwtTokenProvider.generateTokenForUser(generateUserTokenRequest);
             String refreshToken = jwtTokenProvider.generateRefreshTokenForUser(generateUserTokenRequest);
 
-            // 使用 HTTP Header 传递 Token
-            request.getSession().setAttribute("access_token", accessToken);
-            request.getSession().setAttribute("refresh_token", refreshToken);
+            // 使用 Cookie 传递 Token
+            Cookie accessCookie = new Cookie("access_token", accessToken);
+            accessCookie.setHttpOnly(true);
+            accessCookie.setSecure(true); // 如果使用 HTTPS
+            accessCookie.setPath("/");
+            // accessCookie.setDomain("localhost");
+            accessCookie.setMaxAge(60 * 30); // 30 分钟
+            response.addCookie(accessCookie);
 
-            return "redirect:/auth/home";
+            Cookie refreshCookie = new Cookie("refresh_token", refreshToken);
+            refreshCookie.setHttpOnly(true);
+            refreshCookie.setSecure(true); // 如果使用 HTTPS
+            refreshCookie.setPath("/");
+            refreshCookie.setMaxAge(7 * 24 * 60 * 60); // 7 天
+            response.addCookie(refreshCookie);
+
+            return "redirect:/admin/home";
         }
-        return "redirect:/auth/login?error=true"; // 登录失败重定向到登录页
+        return "redirect:/admin/login?error=true"; // 登录失败重定向到登录页
     }
+
 
     @GetMapping("/home")
     public String homePage(HttpServletRequest request, Model model) {
@@ -100,6 +112,34 @@ public class AuthCenterController {
         return "depts";
     }
 
+    @GetMapping("/depts-level")
+    private String deptLevelPage(HttpServletRequest request, Model model) {
+        setToken(request, model);
+        return "depts-level";
+    }
+
+    @GetMapping("/depts-list")
+    private String deptListPage(HttpServletRequest request, Model model) {
+        setToken(request, model);
+        return "depts-list";
+    }
+
+    @GetMapping("/dept-users")
+    private String deptUsersPage(HttpServletRequest request, Model model) {
+        setToken(request, model);
+        return "dept-users";
+    }
+
+    @GetMapping("/error")
+    public String throwError() {
+        return "error/error";
+    }
+
+    @GetMapping("/404")
+    public String throw404() {
+        return "error/404";
+    }
+
     @PostMapping("/refresh")
     @ResponseBody
     public Result<?> refreshAccessToken(@CookieValue(value = "refresh_token", required = false) String refreshToken, HttpServletResponse response) {
@@ -116,8 +156,9 @@ public class AuthCenterController {
 
             Cookie newAccessCookie = new Cookie("access_token", newAccessToken);
             newAccessCookie.setHttpOnly(true);
+            newAccessCookie.setSecure(true); // 如果使用 HTTPS
             newAccessCookie.setPath("/");
-            newAccessCookie.setMaxAge(60 * 30);
+            newAccessCookie.setMaxAge(60 * 30); // 30 分钟
             response.addCookie(newAccessCookie);
 
             return Result.success(new RefreshTokenRequest(newAccessToken));
@@ -125,6 +166,7 @@ public class AuthCenterController {
             return Result.failure(ResultCode.UNAUTHORIZED, "无效的 refresh token");
         }
     }
+
 
     @GetMapping("/logout")
     public String logout(HttpServletResponse response) {
@@ -139,8 +181,9 @@ public class AuthCenterController {
         refreshCookie.setMaxAge(0);
         response.addCookie(refreshCookie);
 
-        return "redirect:/auth/login";
+        return "redirect:/admin/login";
     }
+
 
     @GetMapping("/test")
     @ResponseBody
@@ -148,16 +191,44 @@ public class AuthCenterController {
         return "接口调用成功，已通过认证！";
     }
 
-    private void setToken(HttpServletRequest request, Model model) {
+    @GetMapping("/admin")
+    public String authRedirect(HttpServletRequest request) {
         String token = (String) request.getSession().getAttribute("access_token");
+        if (token != null && jwtTokenProvider.validateToken(token)) {
+            return "redirect:/admin/home";
+        }
+        return "redirect:/admin/login";
+    }
+
+    @GetMapping("/")
+    public String rootRedirect(HttpServletRequest request) {
+        String token = (String) request.getSession().getAttribute("access_token");
+        if (token != null && jwtTokenProvider.validateToken(token)) {
+            return "redirect:/admin/home";
+        }
+        return "redirect:/admin/login";
+    }
+
+    private void setToken(HttpServletRequest request, Model model) {
+        String token = getTokenFromCookie(request, "access_token");
         model.addAttribute("access_token", token);
 
         if (token != null && jwtTokenProvider.validateToken(token)) {
-            // 从 token 中解析用户名
             String employeeId = jwtTokenProvider.getEmployeeIdFromToken(token);
             model.addAttribute("username", employeeId);
         } else {
             model.addAttribute("username", "访客");
         }
+    }
+
+    private String getTokenFromCookie(HttpServletRequest request, String name) {
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if (cookie.getName().equals(name)) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
 }

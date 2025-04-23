@@ -7,28 +7,27 @@
 // 刷新失败时自动跳转登录
 // 这里直接使用本地的 axios（不需要 import/export）
 
-const baseURL = '/auth';
+const baseURL = '/admin';
 const instance = axios.create({
     baseURL,
     timeout: 10000,
+    withCredentials: true // 保证发送请求时自动带上 Cookie
 });
 
 let isRefreshing = false;
 let requestQueue = [];
 
-// 重定向到登录
 const redirectToLogin = () => {
-    console.error('Token expired or invalid, redirecting to login...');
-    window.location.href = '/auth/login';
+    console.warn('登录状态过期，正在跳转登录页...');
+    window.location.href = '/admin/login';
 };
 
-// 刷新 Token 方法（如果需要刷新，可以保留逻辑）
-const refreshAccessToken = () => {
-    return instance.post('/refresh')  // 服务端从 session 刷新
+// Token 刷新逻辑（调用后端 /refresh 获取新 Cookie）
+const refreshToken = () => {
+    return instance.post('/refresh')
         .then((res) => {
-            const {refreshToken} = res.data;
-            window.accessToken = refreshToken;  // 更新全局变量
-            return refreshToken;
+            // 后端设置新的 Cookie，这里不需要做任何处理
+            return Promise.resolve();
         })
         .catch((err) => {
             requestQueue = [];
@@ -37,13 +36,10 @@ const refreshAccessToken = () => {
         });
 };
 
-// 请求拦截器
+// 请求拦截器（可以添加 loading、请求日志等）
 instance.interceptors.request.use(
     (config) => {
-        const token = window.accessToken;
-        if (token) {
-            config.headers['Authorization'] = `Bearer ${token}`;
-        }
+        // 你可以根据需要添加统一 headers 或日志
         return config;
     },
     (error) => Promise.reject(error)
@@ -51,45 +47,45 @@ instance.interceptors.request.use(
 
 // 响应拦截器
 instance.interceptors.response.use(
-    (response) => response.data,
+    (response) => response.data, // 默认返回数据字段
     (error) => {
         const {config, response} = error;
-        if (response) {
-            switch (response.status) {
-                case 401:
-                    if (!isRefreshing) {
-                        isRefreshing = true;
-                        return refreshAccessToken()
-                            .then((newToken) => {
-                                requestQueue.forEach((cb) => cb(newToken));
-                                requestQueue = [];
-                                isRefreshing = false;
 
-                                config._retry = true;
-                                config.headers['Authorization'] = `Bearer ${newToken}`;
-                                return instance(config);
-                            })
-                            .catch((err) => {
-                                isRefreshing = false;
-                                return Promise.reject(err);
-                            });
-                    }
+        if (!response) return Promise.reject(error);
 
-                    return new Promise((resolve) => {
-                        requestQueue.push((newToken) => {
-                            config._retry = true;
-                            config.headers['Authorization'] = `Bearer ${newToken}`;
-                            resolve(instance(config));
-                        });
+        if (response.status === 401) {
+            if (!isRefreshing) {
+                isRefreshing = true;
+
+                return refreshToken()
+                    .then(() => {
+                        requestQueue.forEach((cb) => cb());
+                        requestQueue = [];
+                        isRefreshing = false;
+
+                        // retry 原请求
+                        config._retry = true;
+                        return instance(config);
+                    })
+                    .catch((err) => {
+                        isRefreshing = false;
+                        return Promise.reject(err);
                     });
-                    break;
-                case 403:
-                    redirectToLogin();
-                    return Promise.reject(error);
-                default:
-                    return Promise.reject(error);
             }
+
+            // 多个请求等待刷新完成后再发送
+            return new Promise((resolve) => {
+                requestQueue.push(() => {
+                    config._retry = true;
+                    resolve(instance(config));
+                });
+            });
         }
+
+        if (response.status === 403) {
+            redirectToLogin();
+        }
+
         return Promise.reject(error);
     }
 );
@@ -99,8 +95,8 @@ const request = {
     get: (url, params) => instance.get(url, {params}),
     post: (url, data) => instance.post(url, data),
     put: (url, data) => instance.put(url, data),
-    delete: (url, params) => instance.delete(url, {params}),
+    delete: (url, params) => instance.delete(url, {params})
 };
 
-// 挂到全局 window 下，方便页面直接调用
+// 全局暴露，页面使用 window.request
 window.request = request;

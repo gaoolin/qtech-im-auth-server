@@ -39,7 +39,10 @@ function confirmLogout() {
  */
 function escapeHtml(unsafe) {
     if (unsafe === null || unsafe === undefined) {
-        return '';
+        return ''; // 将 null 或 undefined 转换为空字符串
+    }
+    if (typeof unsafe !== 'string') {
+        unsafe = String(unsafe); // 将非字符串类型转换为字符串
     }
     return unsafe.replace(/[&<>"']/g, c => ({
         '&': '&amp;',
@@ -49,3 +52,4 @@ function escapeHtml(unsafe) {
         "'": '&#39;'
     }[c] || c));
 }
+

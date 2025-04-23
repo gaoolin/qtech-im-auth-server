@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>部门管理 - 认证中心</title>
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/css/bootstrap.min.css"/>
+    <script src="/js/axios.min.js"></script>
+    <script src="/js/jquery-3.6.0.min.js"></script>
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/request.js"></script>
+    <script src="/js/common.js"></script>
+    <script src="/js/pagination.js"></script>
+    <style>
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">认证中心</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin/home">首页</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownUsers" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        用户管理
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownUsers">
+                        <li><a class="dropdown-item" href="/admin/users">用户列表</a></li>
+                        <li><a class="dropdown-item" href="/admin/user-groups">用户组</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownRoles" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        角色管理
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownRoles">
+                        <li><a class="dropdown-item" href="/admin/roles">角色列表</a></li>
+                        <li><a class="dropdown-item" href="/admin/role-permissions">角色权限</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownSystems" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        系统管理
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownSystems">
+                        <li><a class="dropdown-item" href="/admin/systems">系统列表</a></li>
+                        <li><a class="dropdown-item" href="/admin/system-config">系统配置</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownPermissions" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        权限管理
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownPermissions">
+                        <li><a class="dropdown-item" href="/admin/permissions">权限列表</a></li>
+                        <li><a class="dropdown-item" href="/admin/permission-groups">权限组</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle active" href="#" id="navbarDropdownDepts" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        部门管理
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownDepts">
+                        <li><a class="dropdown-item" href="/admin/depts">组织统计</a></li>
+                        <li><a class="dropdown-item" href="/admin/depts-level">部门层级信息</a></li>
+                        <li><a class="dropdown-item" href="/admin/depts-list">部门列表</a></li>
+                        <li><a class="dropdown-item" href="/admin/dept-users">部门用户</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin/logout" onclick="showLogoutConfirm(); return false;">退出登录</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="container mt-5">
+    <h2>部门管理</h2>
+    <div class="d-flex mb-3">
+        <input type="text" id="searchKeyword" class="form-control me-2" placeholder="请输入部门名称" onkeypress="if(event.keyCode===13) loadDepts()">
+        <button class="btn btn-primary" onclick="loadDepts()">搜索</button>
+        <button class="btn btn-success ms-3" data-bs-toggle="modal" data-bs-target="#addDeptModal">新增部门</button>
+    </div>
+
+    <table class="table table-bordered table-hover text-center shadow-sm rounded" style="width: 100%; margin: 0 auto;">
+        <thead class="table-light">
+        <tr>
+            <th scope="col" class="text-center">部门名称</th>
+            <th scope="col" class="text-center">上级部门</th>
+            <th scope="col" class="text-center">下级部门数量</th>
+            <th scope="col" class="text-center">操作</th>
+        </tr>
+        </thead>
+        <tbody id="deptTableBody">
+        <tr>
+            <td colspan="5" class="text-center">暂无数据</td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="d-flex justify-content-center mt-3">
+        <ul class="pagination" id="pagination" style="display: none;">
+            <!-- 分页按钮会动态生成 -->
+        </ul>
+    </div>
+</div>
+
+<div class="modal fade" id="addDeptModal" tabindex="-1" aria-labelledby="addDeptModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addDeptModalLabel">新增部门</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addDeptForm">
+                    <div class="mb-3">
+                        <label class="form-label">上级部门</label>
+                        <select class="form-select" id="addDeptParentId" name="parentId">
+                            <option value="0">无</option>
+                            <!-- 动态生成上级部门选项 -->
+                            <option value="1">一级部门</option>
+                            <option value="2">二级部门</option>
+                            <option value="3">三级部门</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">部门名称</label>
+                        <input type="text" class="form-control" id="addDeptName" name="name" placeholder="请输入部门名称" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">部门描述</label>
+                        <textarea class="form-control" id="addDeptDescription" name="description" placeholder="请输入部门描述" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="addDept()">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="editDeptModal" tabindex="-1" aria-labelledby="editDeptModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editDeptModalLabel">编辑部门</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editDeptId">
+                <div class="mb-3">
+                    <label class="form-label">上级部门</label>
+                    <select class="form-select" id="editDeptParentId" name="parentId">
+                        <option value="0">无</option>
+                        <!-- 动态生成上级部门选项 -->
+                        <option value="1">一级部门</option>
+                        <option value="2">二级部门</option>
+                        <option value="3">三级部门</option>
+                    </select>
+                    <div class="form-text">选择上级部门</div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">部门名称</label>
+                    <input type="text" class="form-control" id="editDeptName" name="name" placeholder="请输入部门名称" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">部门描述</label>
+                    <textarea class="form-control" id="editDeptRemark" name="remark" placeholder="请输入部门描述" rows="3"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="editDept()">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="toast-container toastContainer" id="toastContainer">
+    <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">提示</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toastBody"></div>
+    </div>
+</div>
+
+<footer class="text-center text-muted mt-5 mb-3">QTECH 智能制造认证中心 © 2025</footer>
+<!-- Toast Container -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="logoutToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">确认退出</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            确定要退出登录吗？
+            <button type="button" class="btn btn-primary ms-2" onclick="confirmLogout()">确定</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="toast">取消</button>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    window.accessToken = /*[[${access_token}]]*/ '';
+    /*]]>*/
+
+    let currentPage = 0;
+    let pageSize = 10;
+    const deptTableBody = $("#deptTableBody");
+
+    function loadDepts(page = currentPage, size = pageSize, keyword = $("#searchKeyword").val()) {
+        page = parseInt(page, 10);
+        size = parseInt(size, 10);
+
+        deptTableBody.html('<tr><td colspan="7" class="text-center">加载中...</td></tr>');
+        request.get("/depts/view", {keyword, page, size}, {headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')}})
+            .then(response => {
+                if (response.success) {
+                    const {content, totalPages, totalElements} = response.data;
+                    renderDeptTable(content || [], totalPages || 0, totalElements || 0, page);
+                } else {
+                    showToast('部门信息加载失败，请稍后再试', 'danger');
+                }
+            })
+            .catch(error => {
+                showToast('部门信息加载失败，请稍后再试', 'danger');
+                console.error(error);
+            });
+    }
+
+    function renderDeptTable(depts, totalPages, totalElements, currentPage) {
+        deptTableBody.empty();
+        if (depts.length > 0) {
+            const rows = depts.map(dept => {
+                const safeDeptName = escapeHtml(dept.deptName || '');
+                const safeParentDeptName = escapeHtml(dept.parentDeptName || '');
+                const safeChildrenCount = escapeHtml(String(dept.childrenCount || 0));
+
+                return `
+                <tr>
+                    <td>${safeDeptName}</td>
+                    <td>${safeParentDeptName}</td>
+                    <td>${safeChildrenCount}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" onclick="showEditDeptModal(${JSON.stringify(dept).replace(/"/g, '&quot;')})">编辑</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteDept(${dept.id})">删除</button>
+                    </td>
+                </tr>
+            `;
+            }).join('');
+            deptTableBody.append(rows);
+        } else {
+            deptTableBody.html('<tr><td colspan="5" class="text-center">暂无数据</td></tr>');
+        }
+        updatePagination(currentPage, totalPages, totalElements, loadDepts); // 传递回调函数
+    }
+
+
+    function addDept() {
+        const formData = $("#addDeptForm").serialize();
+        if (!validateForm(formData)) return;
+
+        request.post("/depts/add", formData, {headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')}})
+            .then(response => {
+                if (response.success) {
+                    showToast('部门信息保存成功', 'success');
+                    $("#addDeptModal").modal('hide');
+                    loadDepts();
+                } else {
+                    showToast('部门信息保存失败，请稍后再试', 'danger');
+                }
+            })
+            .catch(error => {
+                showToast('部门信息保存失败，请稍后再试', 'danger');
+                console.error(error);
+            });
+    }
+
+    function showEditDeptModal(dept) {
+        $("#editDeptForm").find("input[name='id']").val(dept.id);
+        $("#editDeptForm").find("input[name='name']").val(dept.deptName);
+        $("#editDeptForm").find("textarea[name='description']").val(dept.remark);
+        $("#editDeptModal").modal('show');
+    }
+
+    function editDept() {
+        const id = $("#editDeptForm").find("input[name='id']").val();
+        const formData = $("#editDeptForm").serialize();
+        if (!validateForm(formData)) return;
+
+        request.put(`/depts/update/${id}`, formData, {headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')}})
+            .then(response => {
+                if (response.success) {
+                    showToast('部门信息更新成功', 'success');
+                    $("#editDeptModal").modal('hide');
+                    loadDepts();
+                } else {
+                    showToast('部门信息更新失败，请稍后再试', 'danger');
+                }
+            })
+            .catch(error => {
+                showToast('部门信息更新失败，请稍后再试', 'danger');
+                console.error(error);
+            });
+    }
+
+    function deleteDept(deptId) {
+        if (!confirm('确定要删除该部门吗？')) return;
+
+        request.delete(`/depts/delete/${deptId}`, {}, {headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')}})
+            .then(response => {
+                if (response.success) {
+                    showToast('部门信息删除成功', 'success');
+                    loadDepts();
+                } else {
+                    showToast('部门信息删除失败，请稍后再试', 'danger');
+                }
+            })
+            .catch(error => {
+                showToast('部门信息删除失败，请稍后再试', 'danger');
+                console.error(error);
+            });
+    }
+
+    function validateForm(formData) {
+        const data = new URLSearchParams(formData);
+        if (!data.get('name')) {
+            showToast('部门名称不能为空', 'warning');
+            return false;
+        }
+        return true;
+    }
+
+    $(document).ready(function () {
+        loadDepts();
+    });
+</script>
+
+
+</body>
+</html>
+</body>
+</html>

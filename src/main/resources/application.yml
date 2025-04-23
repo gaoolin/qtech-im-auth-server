@@ -57,8 +57,8 @@ spring:
   web:
     resources:
       static-locations: classpath:/static/  # 告诉 Spring 去哪里找资源（静态文件的真实物理位置）
-#  mvc:
-#    static-path-pattern: /static/**  #  所有静态资源访问必须通过 /static/ 开头
+  #  mvc:
+  #    static-path-pattern: /static/**  #  所有静态资源访问必须通过 /static/ 开头
   banner:
     location: classpath:banner.txt
 
